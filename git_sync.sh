@@ -11,5 +11,5 @@ git add .
 git commit -m "$commit"
 git push -u origin master
 
-
-printf "\nDone!"
+printf "\nDone!\n"
+sleep 3
