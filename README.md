@@ -1,6 +1,6 @@
 # Systemback
 
-This is a fork of [BluewhaleRobot/systemback]. The [original project](https://launchpad.net/systemback) is no longer maintained by the creator.
+This is a fork of [BluewhaleRobot/systemback](https://github.com/BluewhaleRobot/systemback). The [original project](https://launchpad.net/systemback) is no longer maintained by the creator.
 
 Simple system backup and restore application with extra features
 
