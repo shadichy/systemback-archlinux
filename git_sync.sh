@@ -10,3 +10,6 @@ git config --global user.name "$name"
 git add .
 git commit -m "$commit"
 git push -u origin master
+
+
+printf "\nDone!"
