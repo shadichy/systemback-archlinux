@@ -8,7 +8,7 @@ Systemback makes it easy to create backups of the system and the users configura
 
 ## Install
 
-* Currently haven't have aur yet *
+* Currently haven't have an aur page yet, and haven't been able to build too :'( *
 
 ```bash
 pacman-key --recv-key 50B2C005A67B264F --keyserver 'hkp://keyserver.ubuntu.com:80'
