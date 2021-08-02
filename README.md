@@ -4,6 +4,7 @@
 This is a fork of [BluewhaleRobot/systemback](https://github.com/BluewhaleRobot/systemback). The [original project](https://launchpad.net/systemback) is no longer maintained by the creator.
 
 ![SB](./systemback/systemback.png)
+
 Simple system backup and restore application with extra features
 
 Systemback makes it easy to create backups of the system and the users configuration files. In case of problems you can easily restore the previous state of the system. There are extra features like system copying, system installation and Live system creation.
