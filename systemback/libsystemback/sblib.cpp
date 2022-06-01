@@ -485,10 +485,8 @@ bool sb::lock(uchar type)
             switch(type) {
             case Sblock:
                 return isdir("/run") ? "/run/systemback.lock" : "/var/run/systemback.lock";
-            case Dpkglock:
-                return "/var/lib/dpkg/lock";
-            case Aptlock:
-                return "/var/lib/apt/lists/lock";
+            case Alpmlock:
+                return "/var/lib/pacman/db.lck";
             default:
                 return isdir("/run") ? "/run/sbscheduler.lock" : "/var/run/sbscheduler.lock";
             }
@@ -794,7 +792,7 @@ bool sb::execsrch(cQStr &fname, cQStr &ppath)
 uchar sb::exec(cQStr &cmd, uchar flag, cQStr &envv)
 {
     auto exit([&cmd](uchar rv) -> uchar {
-            if(! ExecKill && rv && ! like(cmd, {"_apt*", "_dpkg*", "_sbscheduler*"})) error("\n " % tr("An error occurred while executing the following command:") % "\n\n  " % cmd % "\n\n " % tr("Exit code:") % ' ' % QStr::number(rv) % "\n\n", true);
+            if(! ExecKill && rv && ! like(cmd, {"_pacman*", "_sbscheduler*"})) error("\n " % tr("An error occurred while executing the following command:") % "\n\n  " % cmd % "\n\n " % tr("Exit code:") % ' ' % QStr::number(rv) % "\n\n", true);
             return rv;
         });
 
@@ -1018,18 +1016,12 @@ void sb::pupgrade()
 
 void sb::supgrade()
 {
-    exec("apt-get update");
-
-    QStr fyes([] {
-            QProcess proc;
-            proc.start("apt -v", QProcess::ReadOnly), proc.waitForFinished(-1);
-            QStr sout(proc.readAllStandardOutput());
-            return sout.length() < 7 || mid(sout, 5, 3).replace('.', nullptr).toUShort() < 12 ? "--force-yes" : "--allow-downgrades --allow-change-held-packages";
-        }());
+    exec("pacman -Syy");
 
     forever
     {
-        if(! exec({"apt-get install -fym " % fyes, "dpkg --configure -a", "apt-get dist-upgrade --no-install-recommends -ym " % fyes, "apt-get autoremove --purge -y"}))
+        if (!exec({"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm -
+"}))
         {
             QStr rklist;
 
@@ -1054,35 +1046,19 @@ void sb::supgrade()
                     }
             }
 
-            uchar cproc(rklist.isEmpty() ? 0 : exec("apt-get autoremove --purge " % rklist));
+            uchar cproc(rklist.isEmpty() ? 0 : exec("pacman -Rc " % rklist));
 
             if(like(cproc, {0, 1}))
             {
-                {
-                    QProcess proc;
-                    proc.start("dpkg -l", QProcess::ReadOnly), proc.waitForFinished(-1);
-                    QBA sout(proc.readAllStandardOutput());
-                    QStr iplist;
-                    QTS in(&sout, QIODevice::ReadOnly);
-
-                    while(! in.atEnd())
-                    {
-                        QStr cline(in.readLine());
-                        if(cline.startsWith("rc")) iplist.append(' ' % mid(cline, 5, instr(cline, " ", 5) - 5));
-                    }
-
-                    if(! iplist.isEmpty()) exec("dpkg --purge " % iplist);
-                }
-
-                exec("apt-get clean");
+                exec({"pacman -Qqen | grep '^rc' |pacman -Rc -", "pacman -Scc --noconfirm"});
 
                 {
-                    QSL dlst(QDir("/var/cache/apt").entryList(QDir::Files));
+                    QSL dlst(QDir("/var/cache/pacman").entryList(QDir::Files));
 
                     for(uchar a(0) ; a < dlst.count() ; ++a)
                     {
                         cQStr &item(dlst.at(a));
-                        if(item.contains(".bin.")) rmfile("/var/cache/apt/" % item);
+                        if(item.contains(".bin.")) rmfile("/var/cache/pacman/" % item);
                     }
                 }
 
@@ -1092,8 +1068,8 @@ void sb::supgrade()
                 break;
             }
         }
-        else
-            exec("dpkg --configure -a");
+        // else
+        //     exec("dpkg --configure -a");
 
         exec({"tput reset", "tput civis"});
 
@@ -2377,7 +2353,7 @@ bool sb::thrdcrtrpoint(cQStr &trgt)
             if(ThrdKill) return out();
         }
 
-        QSL elst{"/etc/mtab", "/snap/.sblvtmp", "/var/.sblvtmp", "/var/cache/fontconfig/", "/var/lib/dpkg/lock", "/var/lib/udisks2/", "/var/lib/ureadahead/", "/var/log/", "/var/run/", "/var/tmp/"}, dlst{"/bin", "/boot", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/srv", "/usr", "/var", "/snap"}, excl[]{{"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.dpkg-old_", "*~_", "*~/*"}, {"+_/var/cache/apt/*", "-*.bin_", "-*.bin.*"}, {"_/var/cache/apt/archives/*", "*.deb_"}};
+        QSL elst{"/etc/mtab", "/snap/.sblvtmp", "/var/.sblvtmp", "/var/cache/fontconfig/", "/var/lib/pacman/db.lck", "/var/lib/udisks2/", "/var/lib/ureadahead/", "/var/log/", "/var/run/", "/var/tmp/"}, dlst{"/bin", "/boot", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/srv", "/usr", "/var", "/snap"}, excl[]{{"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.pacsave_", "*.pacnew_", "*~_", "*~/*"}, {"+_/var/cache/pacman/*", "-*.bin_", "-*.bin.*"}, {"_/var/cache/pacman/pkg/*", "*.tar.zst_"}};
         edetect(elst);
 
         for(uchar a(0) ; a < dlst.count() ; ++a)
@@ -2712,8 +2688,9 @@ bool sb::thrdsrestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool s
             }
 
             QSL elst;
-            if(trgt.isEmpty()) elst = QSL{"/etc/mtab", "/var/cache/fontconfig/", "/var/lib/dpkg/lock", "/var/lib/udisks2/", "/var/run/", "/var/tmp/"};
-            if(trgt.isEmpty() || (isfile("/mnt/etc/xdg/autostart/sbschedule.desktop") && isfile("/mnt/etc/xdg/autostart/sbschedule-kde.desktop") && isfile("/mnt/usr/bin/systemback") && isfile("/mnt/usr/lib/systemback/libsystemback.so.1.0.0") && isfile("/mnt/usr/lib/systemback/sbscheduler") && isfile("/mnt/usr/lib/systemback/sbsustart") && isfile("/mnt/usr/lib/systemback/sbsysupgrade")&& isdir("/mnt/usr/share/systemback/lang") && isfile("/mnt/usr/share/systemback/efi.tar.gz") && isfile("/mnt/usr/share/systemback/splash.png") && isfile("/mnt/var/lib/dpkg/info/systemback.list") && isfile("/mnt/var/lib/dpkg/info/systemback.md5sums"))) elst.append({"/etc/systemback", "/etc/xdg/autostart/sbschedule*", "/usr/bin/systemback*", "/usr/lib/systemback/", "/usr/share/systemback/", "/var/lib/dpkg/info/systemback*"});
+            if(trgt.isEmpty())
+                elst = QSL{"/etc/mtab", "/var/cache/fontconfig/", "/var/lib/pacman/db.lck", "/var/lib/udisks2/", "/var/run/", "/var/tmp/"};
+            if(trgt.isEmpty() || (isfile("/mnt/etc/xdg/autostart/sbschedule.desktop") && isfile("/mnt/etc/xdg/autostart/sbschedule-kde.desktop") && isfile("/mnt/usr/bin/systemback") && isfile("/mnt/usr/lib/systemback/libsystemback.so.1.0.0") && isfile("/mnt/usr/lib/systemback/sbscheduler") && isfile("/mnt/usr/lib/systemback/sbsustart") && isfile("/mnt/usr/lib/systemback/sbsysupgrade")&& isdir("/mnt/usr/share/systemback/lang") && isfile("/mnt/usr/share/systemback/efi.tar.gz") && isfile("/mnt/usr/share/systemback/splash.png") && isfile("/mnt/var/lib/pacman/local/systemback-*/files") && isfile("/mnt/var/lib/pacman/local/systemback-*/mtree"))) elst.append({"/etc/systemback", "/etc/xdg/autostart/sbschedule*", "/usr/bin/systemback*", "/usr/lib/systemback/", "/usr/share/systemback/", "/var/lib/pacman/local/systemback-*"});
             if(sfstab) elst.append("/etc/fstab");
             edetect(elst);
             QSL dlst{"/bin", "/boot", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/snap", "/srv", "/usr", "/var"}, excl[]{{"_lost+found_", "_Systemback_"}, {"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*"}};
@@ -3531,7 +3508,7 @@ bool sb::thrdscopy(uchar mthd, cQStr &usr, cQStr &srcdir)
             if(ThrdKill) return false;
         }
 
-        QSL elst{"/boot/efi", "/etc/crypttab", "/etc/mtab", "/snap/.sblvtmp", "/var/.sblvtmp", "/var/cache/fontconfig/", "/var/lib/dpkg/lock", "/var/lib/udisks2/", "/var/log", "/var/run/", "/var/tmp/"};
+        QSL elst{"/boot/efi", "/etc/crypttab", "/etc/mtab", "/snap/.sblvtmp", "/var/.sblvtmp", "/var/cache/fontconfig/", "/var/lib/pacman/db.lck", "/var/lib/udisks2/", "/var/log", "/var/run/", "/var/tmp/"};
         if(mthd > 2) elst.append({"/etc/machine-id", "/var/lib/dbus/machine-id"});
 
         if(srcdir.isEmpty())
@@ -3998,12 +3975,12 @@ bool sb::thrdlvprpr(bool iudata)
         if(! rodir(varitms, varitmst, "/var")) return false;
         if(! (crtdir("/var/.sblvtmp") && crtdir("/var/.sblvtmp/var"))) return false;
         ++ThrdLng[0];
-        QSL elst{"lib/dpkg/lock", "lib/udisks/mtab", "lib/ureadahead/", "log/", "run/", "tmp/"};
+        QSL elst{"lib/pacman/db.lck", "lib/udisks/mtab", "lib/ureadahead/", "log/", "run/", "tmp/"};
         edetect(elst, true);
 
         if(! varitmst.isEmpty())
         {
-            QSL excl[]{{"+_cache/apt/*", "-*.bin_", "-*.bin.*"}, {"_cache/apt/archives/*", "*.deb_"}, {"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.dpkg-old_", "*~_", "*~/*"}, {"*.gz_", "*.old_"}};
+            QSL excl[]{{"+_cache/pacman/*", "-*.bin_", "-*.bin.*"}, {"_cache/pacman/pkg/*", "*.tar.zst_"}, {"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.pacsave_", "*.pacnew_", "*~_", "*~/*"}, {"*.gz_", "*.old_"}};
             lcnt = 0;
             QTS in(&varitms, QIODevice::ReadOnly);
 
@@ -4080,7 +4057,7 @@ bool sb::thrdlvprpr(bool iudata)
 
         if(! snapitmst.isEmpty())
         {
-            QSL excl{"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.dpkg-old_", "*~_", "*~/*"};
+            QSL excl{"_lost+found_", "_lost+found/*", "*/lost+found_", "*/lost+found/*", "_Systemback_", "_Systemback/*", "*/Systemback_", "*/Systemback/*", "*.pacsave_", "*.pacnew_", "*~_", "*~/*"};
             lcnt = 0;
             QTS in(&snapitms, QIODevice::ReadOnly);
 
