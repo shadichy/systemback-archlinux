@@ -1,7 +1,7 @@
 # Systemback
 ![Systemback-logo](./systemback/logo.png)
 
-This is a fork of [BluewhaleRobot/systemback](https://github.com/BluewhaleRobot/systemback). The [original project](https://launchpad.net/systemback) is no longer maintained by the creator.
+This is a fork of [BluewhaleRobot/systemback](https://github.com/BluewhaleRobot/systemback), which is also a fork of the [original project](https://launchpad.net/systemback) (which is no longer maintained by the creator). This is made for [Arch Linux](http://archlinux.org/) and it's derivatives (Arch-based), such as [Manjaro](https://manjaro.org), [Garuda Linux](http://garudalinux.org/), [RebornOS](https://rebornos.org), [CachyOS](https://cachyos.org),... (and not for Debian or Ubuntu)
 
 ![SB](./systemback/systemback.png)
 
@@ -15,7 +15,7 @@ Systemback makes it easy to create backups of the system and the users configura
 
 ```bash
 pacman-key --recv-key 50B2C005A67B264F --keyserver 'hkp://keyserver.ubuntu.com:80'
-yay -S systemback
+yay -S systemback # wont work
 ```
 
 ## Build
@@ -23,7 +23,7 @@ yay -S systemback
 ```bash
 git clone https://github.com/shadichy/systemback-archlinux
 cd systemback-archlinux
-makepkg -si
+makepkg -si # wont work too
 ```
 Image of Systemback
 ![prev](https://www.unixmen.com/wp-content/uploads/2014/07/Systemback_010.png)

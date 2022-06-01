@@ -13,6 +13,11 @@ optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-
 source=(systemback-archlinux::https://github.com/shadichy/systemback-archlinux.git)
 md5sums=('SKIP')
 
-build() {}
+build() {
+    cd "$srcdir"
+    dpkg-buildpackage -d -us -uc
+}
 
-package() {}
+package() {
+    debtap -d -u -i -p "$pkgname" -v "$pkgver" -r "$pkgrel" -a "$arch" -t "$pkgdesc" -l "$url" -c "$license" -s "$depends" -m "$makedepends" -o "$optdepends"
+}
