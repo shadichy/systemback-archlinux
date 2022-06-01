@@ -82,14 +82,9 @@ void scheduler::main()
             sleep(1790);
         else if(QFileInfo(sb::sdir[1] % "/.sbschedule").lastModified().secsTo(QDateTime::currentDateTime()) / 60 >= sb::schdle[1] * 1440 + sb::schdle[2] * 60 + sb::schdle[3] && sb::lock(sb::Sblock))
         {
-            if(! sb::lock(sb::Dpkglock) || [] {
-                    if(! sb::lock(sb::Aptlock))
-                    {
-                        sb::unlock(sb::Dpkglock);
-                        return true;
-                    }
-
-                    return false;
+            if(! sb::lock(sb::Alpmlock) || [] {
+                    sb::unlock(sb::Alpmlock);
+                    return true;
                 }())
 
                 sb::unlock(sb::Sblock);
@@ -108,7 +103,7 @@ void scheduler::main()
                              sb::rmfile(xauth);
                 }
 
-                sb::unlock(sb::Sblock), sb::unlock(sb::Dpkglock), sb::unlock(sb::Aptlock), sleep(50);
+                sb::unlock(sb::Sblock), sb::unlock(sb::Alpmlock), sleep(50);
             }
         }
     }

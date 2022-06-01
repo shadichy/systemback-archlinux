@@ -58,8 +58,7 @@ void systemback::main()
                 }()) return sb::isfile("/cdrom/casper/filesystem.squashfs") || sb::isfile("/lib/live/mount/medium/live/filesystem.squashfs") ? 2
                     : getuid() + getgid() ? 3
                     : ! sb::lock(sb::Sblock) ? 4
-                    : ! sb::lock(sb::Dpkglock) ? 5
-                    : ! sb::lock(sb::Aptlock) ? 6
+                    : ! sb::lock(sb::Alpmlock) ? 5
                     : [&] {
                             auto startui([this](bool crtrpt = false) -> uchar {
                                     if(! (isatty(fileno(stdin)) && isatty(fileno(stdout)) && isatty(fileno(stderr)))) return 255;
@@ -93,7 +92,7 @@ void systemback::main()
                                 : sb::like(args.at(1), {"_-n_", "_--newrestorepoint_"}) ? sb::isdir(sb::sdir[1]) && sb::access(sb::sdir[1], sb::Write) ? startui(true) : 14
                                 : sb::like(args.at(1), {"_-s_", "_--storagedir_"}) ? storagedir(args)
                                 : sb::like(args.at(1), {"_-u_", "_--upgrade_"}) ? [] {
-                                        sb::unlock(sb::Dpkglock), sb::unlock(sb::Aptlock),
+                                        sb::unlock(sb::Alpmlock),
                                         sb::supgrade();
                                         return 0;
                                     }() : 1;

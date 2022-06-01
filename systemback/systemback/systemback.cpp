@@ -100,10 +100,8 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
             {
                 if(! (sislive = sb::isfile("/cdrom/casper/filesystem.squashfs") || sb::isfile("/lib/live/mount/medium/live/filesystem.squashfs")))
                 {
-                    if(! sb::lock(sb::Dpkglock))
+                    if(! sb::lock(sb::Alpmlock))
                         return 301;
-                    else if(! sb::lock(sb::Aptlock))
-                        return 302;
                 }
 
                 sstart = false;
@@ -304,7 +302,7 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
                     {
                         sb::wsclng = nsclng,
                         sb::cfgwrite(), ocfg.clear(),
-                        sb::unlock(sb::Sblock), sb::unlock(sb::Dpkglock), sb::unlock(sb::Aptlock);
+                        sb::unlock(sb::Sblock), sb::unlock(sb::Alpmlock);
 
                         if(fscrn)
                             utimer.stop(), hide(),
@@ -843,7 +841,7 @@ void systemback::unitimer()
 
                 goto noefi;
             isefi:
-                grub.name = "efi-amd64-bin", grub.isEFI = true,
+                grub.name = "", grub.isEFI = true,
                 ui->repairmountpoint->addItem("/mnt/boot/efi"),
                 ui->grubinstallcopy->hide();
                 for(QCbB cmbx : QCbBL{ui->grubinstallcopy, ui->grubreinstallrestore, ui->grubreinstallrepair}) cmbx->addItems({"EFI", tr("Disabled")});
@@ -854,7 +852,7 @@ void systemback::unitimer()
                 goto next_1;
             noefi:
 #endif
-                grub.name = "pc-bin", grub.isEFI = false;
+                grub.name = "-legacy", grub.isEFI = false;
                 for(QWdt wdgt : QWL{ui->grubinstallcopydisable, ui->efiwarning}) wdgt->hide();
 #ifdef __amd64__
             next_1:
@@ -3890,7 +3888,7 @@ void systemback::on_point15_textChanged(cQStr &arg1)
 
 void systemback::on_restoremenu_clicked()
 {
-    if(sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+    if(sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files"))
     {
         if(ui->grubreinstallrestoredisable->isVisibleTo(ui->restorepanel)) ui->grubreinstallrestoredisable->hide(),
                                                                            ui->grubreinstallrestore->show();
@@ -3920,7 +3918,7 @@ void systemback::on_copymenu_clicked()
 {
     if(! grub.isEFI || ui->grubinstallcopy->isVisibleTo(ui->copypanel))
     {
-        if(ppipe ? sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list") : sb::execsrch("update-grub2") && sb::isfile("/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+        if(ppipe ? sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files") : sb::execsrch("update-grub") && sb::isfile("/var/lib/pacman/local/grub" % grub.name % "-*/files"))
         {
             if(ui->grubinstallcopydisable->isVisibleTo(ui->copypanel)) ui->grubinstallcopydisable->hide(),
                                                                        ui->grubinstallcopy->show();
@@ -4034,7 +4032,7 @@ void systemback::on_systemupgrade_clicked()
 {
     statustart(), pset(11);
     QDateTime ofdate(QFileInfo("/usr/bin/systemback").lastModified());
-    sb::unlock(sb::Dpkglock), sb::unlock(sb::Aptlock),
+    sb::unlock(sb::Alpmlock),
     sb::exec("xterm +sb -bg grey85 -fg grey25 -fa a -fs 9 -geometry 80x24+" % QStr::number(ss(80)) % '+' % QStr::number(ss(70)) % " -n \"System upgrade\" -T \"System upgrade\" -cr grey40 -selbg grey86 -bw 0 -bc -bcf 500 -bcn 500 -e sbsysupgrade", sb::Noflag, "DBGLEV=0");
 
     if(isVisible())
@@ -4044,7 +4042,7 @@ void systemback::on_systemupgrade_clicked()
             sb::unlock(sb::Sblock),
             sb::exec("systemback", sb::Bckgrnd),
             close();
-        else if(sb::lock(sb::Dpkglock) && sb::lock(sb::Aptlock))
+        else if(sb::lock(sb::Alpmlock))
             ui->statuspanel->hide(),
             ui->mainpanel->show(),
             ui->functionmenunext->setFocus(),
@@ -5522,10 +5520,10 @@ void systemback::rmntcheck()
         grnst(! (grub.isEFI && sb::issmfs("/mnt/boot", "/mnt/boot/efi")) && [this] {
                 switch(ppipe) {
                 case 0:
-                    if(sb::execsrch("update-grub2") && sb::isfile("/var/lib/dpkg/info/grub-" % grub.name % ".list")) return true;
+                    if(sb::execsrch("update-grub") && sb::isfile("/var/lib/pacman/local/grub" % grub.name % "-*/files")) return true;
                     break;
                 case 1:
-                    if(sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list")) return true;
+                    if(sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files")) return true;
                 }
 
                 return false;
@@ -5533,7 +5531,7 @@ void systemback::rmntcheck()
 
         if(! ui->repairnext->isEnabled()) ui->repairnext->setEnabled(true);
     }
-    else if(! (grub.isEFI && sb::issmfs("/mnt/boot", "/mnt/boot/efi")) && sb::execsrch("update-grub2", "/mnt") && sb::isfile("/mnt/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+    else if(! (grub.isEFI && sb::issmfs("/mnt/boot", "/mnt/boot/efi")) && sb::execsrch("update-grub", "/mnt") && sb::isfile("/mnt/var/lib/pacman/local/grub" % grub.name % "-*/files"))
     {
         grnst();
         if(! ui->repairnext->isEnabled()) ui->repairnext->setEnabled(true);
@@ -5599,7 +5597,7 @@ void systemback::on_installnext_clicked()
 {
     if(! grub.isEFI || ui->grubinstallcopy->isVisibleTo(ui->copypanel))
     {
-        if(ppipe ? sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list") : sb::execsrch("update-grub2") && sb::isfile("/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+        if(ppipe ? sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files") : sb::execsrch("update-grub") && sb::isfile("/var/lib/pacman/local/grub" % grub.name % "-*/files"))
         {
             if(ui->grubinstallcopydisable->isVisibleTo(ui->copypanel)) ui->grubinstallcopydisable->hide(),
                                                                        ui->grubinstallcopy->show();
@@ -5973,7 +5971,7 @@ void systemback::on_changepartition_clicked()
 
             if(grub.isEFI)
             {
-                if(ppipe ? sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list") : sb::execsrch("update-grub2") && sb::isfile("/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+                if(ppipe ? sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files") : sb::execsrch("update-grub") && sb::isfile("/var/lib/pacman/local/grub" % grub.name % "-*/files"))
                 {
                     if(ui->grubinstallcopydisable->isVisible()) ui->grubinstallcopydisable->hide(),
                                                                 ui->grubinstallcopy->show();
@@ -6008,7 +6006,7 @@ void systemback::on_changepartition_clicked()
         ui->partitionsettings->item(ui->partitionsettings->currentRow(), 4)->setText("/boot/efi"),
         ui->efiwarning->hide();
 
-        if(ppipe ? sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/dpkg/info/grub-" % grub.name % ".list") : sb::execsrch("update-grub2") && sb::isfile("/var/lib/dpkg/info/grub-" % grub.name % ".list"))
+        if(ppipe ? sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname) && sb::isfile(sb::sdir[1] % '/' % cpoint % '_' % pname % "/var/lib/pacman/local/grub" % grub.name % "-*/files") : sb::execsrch("update-grub") && sb::isfile("/var/lib/pacman/local/grub" % grub.name % "-*/files"))
         {
             if(ui->grubinstallcopydisable->isVisible()) ui->grubinstallcopydisable->hide(),
                                                         ui->grubinstallcopy->show();
