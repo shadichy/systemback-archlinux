@@ -450,7 +450,7 @@ uchar systemback::restore()
                 printw(bstr("\n\n  " % (mthd == 1 ? tr("Full restore") : tr("System files restore")) % "\n\n " % tr("You want to keep the current fstab file?") % ' ' % tr("(Y/N)") % ' ' % yn[fsave == 1 ? 0 : 1])),
                 attron(COLOR_PAIR(3));
 
-                if(sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname))
+                if(sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname))
                 {
                     printw(bstr("\n\n " % tr("Reinstall the GRUB 2 bootloader?") % ' ' % tr("(Y/N)"))),
                     attron(COLOR_PAIR(2)),
@@ -478,7 +478,7 @@ uchar systemback::restore()
                     printw(bstr("\n\n  " % (mthd == 1 ? tr("Full restore") : tr("System files restore")) % "\n\n " % tr("You want to keep the current fstab file?") % ' ' % tr("(Y/N)") % ' ' % yn[fsave == 1 ? 0 : 1] % "\n\n " % tr("Reinstall the GRUB 2 bootloader?") % ' ' % tr("(Y/N)") % ' ' % yn[greinst == 1 ? 0 : 1]));
                 }
             }
-            else if(sb::execsrch("update-grub2", sb::sdir[1] % '/' % cpoint % '_' % pname))
+            else if(sb::execsrch("update-grub", sb::sdir[1] % '/' % cpoint % '_' % pname))
             {
                 printw(bstr("\n\n " % tr("Reinstall the GRUB 2 bootloader?") % ' ' % tr("(Y/N)"))),
                 attron(COLOR_PAIR(2)),

@@ -1020,8 +1020,7 @@ void sb::supgrade()
 
     forever
     {
-        if (!exec({"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm -
-"}))
+        if (!exec({"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm - "}))
         {
             QStr rklist;
 
@@ -2312,7 +2311,7 @@ bool sb::thrdcrtrpoint(cQStr &trgt)
         if(isdir(rtrgt % "/home") && ! cpertime("./home", rtrgt % "/home")) return out();
 
         {
-            QSL incl{"_initrd.img_", "_initrd.img.old_", "_vmlinuz_", "_vmlinuz.old_"};
+            QSL incl{"_initramfs-${default-kernel}.img_", "_vmlinuz-${default-kernel}_"};
 
             for(cQStr &item : QDir("./").entryList(QDir::Files))
             {
@@ -2631,7 +2630,7 @@ bool sb::thrdsrestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool s
             Progress = 0;
 
             {
-                QSL incl{"_initrd.img_", "_initrd.img.old_", "_vmlinuz_", "_vmlinuz.old_"};
+                QSL incl{"_initramfs-${default-kernel}.img_", "_vmlinuz-${default-kernel}_"};
 
                 for(cQStr &item : QDir(trgt.isEmpty() ? "/" : trgt).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files | QDir::System))
                 {
@@ -3447,7 +3446,7 @@ bool sb::thrdscopy(uchar mthd, cQStr &usr, cQStr &srcdir)
         }
 
         {
-            QSL incl{"_initrd.img_", "_initrd.img.old_", "_vmlinuz_", "_vmlinuz.old_"};
+            QSL incl{"_initramfs-${default-kernel}.img_", "_vmlinuz-${default-kernel}_"};
 
             for(cQStr &item : QDir("/.sbsystemcopy").entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files | QDir::System))
             {
@@ -3877,8 +3876,7 @@ bool sb::thrdlvprpr(bool iudata)
     {
         QUCL sitmst;
         sitmst.reserve(1000000);
-
-        for(cQStr &item : {"/bin", "/boot", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/usr", "/initrd.img", "/initrd.img.old", "/vmlinuz", "/vmlinuz.old"})
+        for (cQStr &item : {"/bin", "/boot", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/usr", "/initramfs-${default-kernel}.img", "/vmlinuz-${default-kernel}"})
             if(isdir(item))
             {
                 if(! rodir(sitmst, item)) return false;
@@ -3922,7 +3920,7 @@ bool sb::thrdlvprpr(bool iudata)
         if(! crtdir("/media")) return false;
     }
     else if(exist("/media/.sblvtmp"))
-       stype("/media/.sblvtmp") == Isdir ? recrmdir("/media/.sblvtmp") : rmfile("/media/.sblvtmp");
+        stype("/media/.sblvtmp") == Isdir ? recrmdir("/media/.sblvtmp") : rmfile("/media/.sblvtmp");
 
     if(! (crtdir("/media/.sblvtmp") && crtdir("/media/.sblvtmp/media"))) return false;
     ++ThrdLng[0];
