@@ -28,3 +28,6 @@ systemback/.qmake.stash
 systemback/systemback.pro.user
 *.buildinfo
 *-working-directory
+/src
+/systemback-archlinux
+.qt_for_python

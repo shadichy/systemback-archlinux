@@ -2,13 +2,13 @@ QT -= gui
 
 TARGET = systemback
 
-CONFIG += c++11 \
-          exceptions_off
+CONFIG +=   c++11 \
+            exceptions_off
 
 TEMPLATE = lib
 
-DEFINES += SYSTEMBACK_LIBRARY \
-           _FILE_OFFSET_BITS=64
+DEFINES +=  SYSTEMBACK_LIBRARY \
+            _FILE_OFFSET_BITS=64
 
 system(./lcheck.sh):exists(libmount.hpp) {
     DEFINES += C_MNT_LIB
@@ -16,25 +16,25 @@ system(./lcheck.sh):exists(libmount.hpp) {
 
 SOURCES += sblib.cpp
 
-HEADERS += sblib.hpp \
-           sblib_global.hpp \
-           sbtypedef.hpp \
-           bstr.hpp
+HEADERS +=  sblib.hpp \
+            sblib_global.hpp \
+            sbtypedef.hpp \
+            bstr.hpp
 
 RESOURCES += version.qrc
 
-QMAKE_CXXFLAGS += -g \
-                  -fno-rtti \
-                  -fvisibility=hidden \
-                  -fvisibility-inlines-hidden \
-                  -fno-asynchronous-unwind-tables
+QMAKE_CXXFLAGS +=   -g \
+                    -fno-rtti \
+                    -fvisibility=hidden \
+                    -fvisibility-inlines-hidden \
+                    -fno-asynchronous-unwind-tables
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result
 
 CONFIG(debug, debug|release) {
-    QMAKE_CXXFLAGS_WARN_ON += -Wextra \
-                              -Wshadow \
-                              -Werror
+    QMAKE_CXXFLAGS_WARN_ON +=   -Wextra \
+                                -Wshadow \
+                                -Werror
 }
 
 QMAKE_LFLAGS += -g \

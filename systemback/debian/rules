@@ -3,7 +3,7 @@
 configure: configure-stamp
 
 configure-stamp:
-	qmake -qt5
+	qmake-qt5
 	touch configure-stamp
 
 build: build-arch build-indep

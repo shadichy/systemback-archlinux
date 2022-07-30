@@ -25,7 +25,7 @@ Depends: ${misc:Depends},
          syslinux (<< 3:5) | syslinux-utils (>> 3:6),
          systemback-efiboot-amd64 (= ${source:Version}) [amd64],
          systemback-scheduler (= ${binary:Version}),
-         upstart | sysvinit (>= 2.88) | systemd,
+         upstart | sysvinit (>= 2.88) | systemd | openrc | runit,
          xterm,
          zenity
 Recommends: grub,
