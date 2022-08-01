@@ -1,32 +1,19 @@
-#!/usr/bin/make -f
+#!/bin/zsh
+# dpkg-buildpackage -d -us -uc
 
-configure: configure-stamp
-
-configure-stamp:
 	qmake-qt5
 	touch configure-stamp
 
-build: build-arch build-indep
-
-build-arch: build-arch-stamp
-
-build-indep: build-indep-stamp
-
-build-arch-stamp: configure-stamp
-	sed 
-	$(MAKE) -j $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+    make -j $(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 	touch build-arch-stamp
 
-build-indep-stamp:
 	lrelease-qt5 systemback.pro
 	touch build-indep-stamp
 
-clean:
 	rm -f configure-stamp build-*-stamp lang/*.qm libsystemback/libmount.hpp
 	[ ! -f Makefile ] || $(MAKE) distclean
 	dh_clean
 
-binary-arch: build-arch
 	dh_installdirs -a
 	dh_install -a
 	dh_installman debian/systemback.1 -p systemback
@@ -48,7 +35,6 @@ binary-arch: build-arch
 	dh_compress -a
 	dh_builddeb -a
 
-binary-indep: build-indep
 	dh_install -i
 	dh_fixperms -i
 	dh_installdeb -i
@@ -57,7 +43,3 @@ binary-indep: build-indep
 	dh_installchangelogs -i
 	dh_compress -i
 	dh_builddeb -i
-
-binary: binary-arch binary-indep
-
-.PHONY: configure build-arch build-indep clean binary-arch binary-indep binary
