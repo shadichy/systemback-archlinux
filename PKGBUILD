@@ -80,14 +80,14 @@ package_systemback-cli() {
 package_systemback-efiboot-amd64() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-efiboot-amd64\n${license[@]}" | debtap -q "${pkgbase}-efiboot-amd64_${pkgver}_amd64.deb"
-    dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
+    dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
     install -dm755 "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/usr"
 }
 package_systemback-locales() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-locales\n${license[@]}" | debtap -q "${pkgbase}-locales_${pkgver}_amd64.deb"
-    dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
+    dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
     install -dm755 "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/usr"
 }
