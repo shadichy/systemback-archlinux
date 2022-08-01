@@ -7609,7 +7609,8 @@ void systemback::on_languageoverride_clicked(bool chckd)
                  : lname == "Română" ? "ro_RO"
                  : lname == "Русский" ? "ru_RU"
                  : lname == "Türkçe" ? "tr_TR"
-                 : lname == "Українськa" ? "uk_UK" : "zh_CN";
+                 : lname == "Українськa" ? "uk_UK" 
+                 : lname == "Tiếng Việt" ? "vi_VN" : "zh_CN";
 
         ui->languages->setEnabled(true);
     }
@@ -7639,7 +7640,8 @@ void systemback::on_languages_currentIndexChanged(cQStr &arg1)
                                             : arg1 == "Română" ? "ro_RO"
                                             : arg1 == "Русский" ? "ru_RU"
                                             : arg1 == "Türkçe" ? "tr_TR"
-                                            : arg1 == "Українськa" ? "uk_UK" : "zh_CN";
+                                            : arg1 == "Українськa" ? "uk_UK" 
+                                            : arg1 == "Tiếng Việt" ? "vi_VN" : "zh_CN";
 }
 
 void systemback::on_styleoverride_clicked(bool chckd)
