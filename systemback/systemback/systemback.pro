@@ -34,8 +34,8 @@ QMAKE_CXXFLAGS += -g \
 
 CONFIG(debug, debug|release) {
     QMAKE_CXXFLAGS_WARN_ON += -Wextra \
-                              -Wshadow \
-                              -Werror
+                              -Wshadow 
+                              #-Werror
 }
 
 QMAKE_LFLAGS += -g \
