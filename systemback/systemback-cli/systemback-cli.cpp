@@ -237,7 +237,7 @@ uchar systemback::clistart()
     } while(pname.isEmpty());
 
     clear(),
-    mvprintw(0, blgn, sbtxt),
+    mvprintw(0, blgn, "%s", sbtxt),
     attron(COLOR_PAIR(1)),
     printw("%s", bstr("\n\n " % tr("Selected restore point:"))),
     attron(COLOR_PAIR(4)),
@@ -362,17 +362,17 @@ bool systemback::newrpnt()
 
 uchar systemback::restore()
 {
-    mvprintw(0, blgn, sbtxt),
+    mvprintw(0, blgn, "%s", sbtxt),
     attron(COLOR_PAIR(1));
     uchar mthd(0), fsave(0), greinst(0);
 
     {
         bstr rtxt[3]{bstr("\n\n " % tr("Restore with the following restore point:")), bstr("\n\n  " % pname), bstr("\n\n " % tr("Restore with the following restore method:"))};
-        printw(rtxt[0]),
+        printw("%s", rtxt[0]),
         attron(COLOR_PAIR(4)),
-        printw(rtxt[1]),
+        printw("%s", rtxt[1]),
         attron(COLOR_PAIR(1)),
-        printw(rtxt[2]),
+        printw("%s", rtxt[2]),
         attron(COLOR_PAIR(3)),
         printw("%s", bstr("\n\n  1 ─ " % tr("Full restore") % "\n  2 ─ " % tr("System files restore"))),
         attron(COLOR_PAIR(1)),
@@ -397,13 +397,13 @@ uchar systemback::restore()
         } while(! mthd);
 
         clear(),
-        mvprintw(0, blgn, sbtxt),
+        mvprintw(0, blgn, "%s", sbtxt),
         attron(COLOR_PAIR(1)),
-        printw(rtxt[0]),
+        printw("%s", rtxt[0]),
         attron(COLOR_PAIR(4)),
-        printw(rtxt[1]),
+        printw("%s", rtxt[1]),
         attron(COLOR_PAIR(1)),
-        printw(rtxt[2]),
+        printw("%s", rtxt[2]),
         attron(COLOR_PAIR(4));
 
         printw("%s", bstr("\n\n  " % [mthd] {
@@ -440,13 +440,13 @@ uchar systemback::restore()
                 } while(! fsave);
 
                 clear(),
-                mvprintw(0, blgn, sbtxt),
+                mvprintw(0, blgn, "%s", sbtxt),
                 attron(COLOR_PAIR(1)),
-                printw(rtxt[0]),
+                printw("%s", rtxt[0]),
                 attron(COLOR_PAIR(4)),
-                printw(rtxt[1]),
+                printw("%s", rtxt[1]),
                 attron(COLOR_PAIR(1)),
-                printw(rtxt[2]),
+                printw("%s", rtxt[2]),
                 attron(COLOR_PAIR(4)),
                 printw("%s", bstr("\n\n  " % (mthd == 1 ? tr("Full restore") : tr("System files restore")) % "\n\n " % tr("You want to keep the current fstab file?") % ' ' % tr("(Y/N)") % ' ' % yn[fsave == 1 ? 0 : 1])),
                 attron(COLOR_PAIR(3));
@@ -468,13 +468,13 @@ uchar systemback::restore()
                     } while(! greinst);
 
                     clear(),
-                    mvprintw(0, blgn, sbtxt),
+                    mvprintw(0, blgn, "%s", sbtxt),
                     attron(COLOR_PAIR(1)),
-                    printw(rtxt[0]),
+                    printw("%s", rtxt[0]),
                     attron(COLOR_PAIR(4)),
-                    printw(rtxt[1]),
+                    printw("%s", rtxt[1]),
                     attron(COLOR_PAIR(1)),
-                    printw(rtxt[2]),
+                    printw("%s", rtxt[2]),
                     attron(COLOR_PAIR(4)),
                     printw("%s", bstr("\n\n  " % (mthd == 1 ? tr("Full restore") : tr("System files restore")) % "\n\n " % tr("You want to keep the current fstab file?") % ' ' % tr("(Y/N)") % ' ' % yn[fsave == 1 ? 0 : 1] % "\n\n " % tr("Reinstall the GRUB 2 bootloader?") % ' ' % tr("(Y/N)") % ' ' % yn[greinst == 1 ? 0 : 1]));
                 }
@@ -496,13 +496,13 @@ uchar systemback::restore()
                 } while(! greinst);
 
                 clear(),
-                mvprintw(0, blgn, sbtxt),
+                mvprintw(0, blgn, "%s", sbtxt),
                 attron(COLOR_PAIR(1)),
-                printw(rtxt[0]),
+                printw("%s", rtxt[0]),
                 attron(COLOR_PAIR(4)),
-                printw(rtxt[1]),
+                printw("%s", rtxt[1]),
                 attron(COLOR_PAIR(1)),
-                printw(rtxt[2]),
+                printw("%s", rtxt[2]),
                 attron(COLOR_PAIR(4)),
                 printw("%s", bstr("\n\n  " % (mthd == 1 ? tr("Full restore") : tr("System files restore")) % "\n\n " % tr("Reinstall the GRUB 2 bootloader?") % ' ' % tr("(Y/N)") % ' ' % yn[greinst == 1 ? 0 : 1]));
             }
@@ -533,7 +533,7 @@ uchar systemback::restore()
     progress(Stop);
     if(err) return 11; }
     clear(),
-    mvprintw(0, blgn, sbtxt),
+    mvprintw(0, blgn, "%s", sbtxt),
     attron(COLOR_PAIR(1));
 
     printw("%s", bstr("\n\n " % twrp([mthd] {
@@ -631,10 +631,11 @@ void systemback::progress(uchar status)
             if(! ptimer) return;
             clear(),
             attron(COLOR_PAIR(2)),
-            mvprintw(0, blgn, sbtxt),
+            mvprintw(0, blgn, "%s", sbtxt),
             attron(COLOR_PAIR(1));
 
-            mvprintw(LINES / 2 - 1, COLS / 2 - (prun.txt.length() + prun.pbar.length() + 4) / 2, bstr(prun.txt % prun.pbar % [a] {
+            mvprintw(LINES / 2 - 1, COLS / 2 - (prun.txt.length() + prun.pbar.length() + 4) / 2, "%s", bstr(prun.txt % prun.pbar % [a]
+                                                                                                            {
                     switch(a) {
                     case 0:
                         return "    ";
@@ -644,8 +645,7 @@ void systemback::progress(uchar status)
                         return " .. ";
                     default:
                         return " ...";
-                    }
-                }()));
+                    } }()));
 
             attron(COLOR_PAIR(2)),
             mvprintw(LINES - 1, COLS - 13, "Kendek, GPLv3"),
