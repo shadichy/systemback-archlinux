@@ -65,6 +65,7 @@
       <property name="font">
        <font>
         <family>FreeSans</family>
+        <pointsize>20</pointsize>
        </font>
       </property>
       <property name="cursor">
@@ -4820,25 +4821,6 @@
       <zorder>functionmenunext</zorder>
       <zorder>label_6</zorder>
      </widget>
-     <widget class="lblevent" name="border">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>698</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 205), stop:1 rgba(255, 255, 255, 0))</string>
-      </property>
-     </widget>
      <widget class="lblevent" name="windowbutton1">
       <property name="geometry">
        <rect>
@@ -6838,7 +6820,6 @@ These will be defined as restorable configuration files!</string>
       <zorder>includecover</zorder>
       <zorder>includeresize</zorder>
      </widget>
-     <zorder>border</zorder>
      <zorder>function1</zorder>
      <zorder>installpanel</zorder>
      <zorder>livepanel</zorder>
@@ -6914,25 +6895,6 @@ These will be defined as restorable configuration files!</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="lblevent" name="border_2">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>402</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 205), stop:1 rgba(255, 255, 255, 0))</string>
       </property>
      </widget>
      <widget class="QWidget" name="substatuspanel" native="true">
@@ -7037,7 +6999,6 @@ These will be defined as restorable configuration files!</string>
       <zorder>progressbar</zorder>
       <zorder>focusfix</zorder>
      </widget>
-     <zorder>border_2</zorder>
      <zorder>function2</zorder>
      <zorder>substatuspanel</zorder>
      <zorder>windowbutton2</zorder>
@@ -7099,25 +7060,6 @@ These will be defined as restorable configuration files!</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="lblevent" name="border_4">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>402</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 205), stop:1 rgba(255, 255, 255, 0))</string>
       </property>
      </widget>
      <widget class="QWidget" name="subschedulerpanel" native="true">
@@ -7237,7 +7179,6 @@ These will be defined as restorable configuration files!</string>
        </property>
       </widget>
      </widget>
-     <zorder>border_4</zorder>
      <zorder>function4</zorder>
      <zorder>subschedulerpanel</zorder>
      <zorder>windowbutton4</zorder>
@@ -7299,25 +7240,6 @@ These will be defined as restorable configuration files!</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="lblevent" name="border_3">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>506</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 205), stop:1 rgba(255, 255, 255, 0))</string>
       </property>
      </widget>
      <widget class="QWidget" name="subdialogpanel" native="true">
@@ -7476,7 +7398,6 @@ These will be defined as restorable configuration files!</string>
       <zorder>dialogok</zorder>
       <zorder>dialognumber</zorder>
      </widget>
-     <zorder>border_3</zorder>
      <zorder>function3</zorder>
      <zorder>subdialogpanel</zorder>
      <zorder>windowbutton3</zorder>
@@ -7719,28 +7640,6 @@ These will be defined as restorable configuration files!</string>
      <property name="autoFillBackground">
       <bool>true</bool>
      </property>
-     <widget class="QLabel" name="resizeborder">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>48</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 205), stop:1 rgba(255, 255, 255, 0))</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QWidget" name="subpanel" native="true">
       <property name="geometry">
        <rect>
