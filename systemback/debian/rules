@@ -13,7 +13,6 @@ build-arch: build-arch-stamp
 build-indep: build-indep-stamp
 
 build-arch-stamp: configure-stamp
-	sed 
 	$(MAKE) -j $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 	touch build-arch-stamp
 
