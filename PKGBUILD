@@ -16,7 +16,7 @@ md5sums=('SKIP')
 build() {
     cd "${srcdir}/${pkgbase}-archlinux/${pkgbase}"
     # cd "../${pkgbase}"
-
+    # export DEB_BUILD_OPTIONS="nostrip noopt"
     dpkg-buildpackage -d -us -uc
     # /usr/bin/konsole -e "/bin/zsh -c 'dpkg-buildpackage -d -us -uc'"
 	# qmake-qt5
