@@ -7,9 +7,9 @@ pkgdesc='Simple system backup and restore application with extra features'
 arch=('x86_64')
 url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
-depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'gcc-libs' 'procps-ng' 'gnu-free-fonts' 'libx11' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'zenity' 'xz')
-makedepends=('ncurses' 'qt5-tools' 'debtap' 'make' 'gcc11' 'dpkg')
+depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'gcc-libs' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz')
 optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse')
+makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper')
 source=(systemback-archlinux::git+https://github.com/shadichy/systemback-archlinux.git)
 md5sums=('SKIP')
 
@@ -68,11 +68,13 @@ package_libsystemback() {
     # echo -e "lib${pkgbase}\n${license[@]}" | debtap -q "lib${pkgbase}_${pkgver}_amd64.deb"
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}"
-    install -dm755 "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}/usr"
+    cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}/usr" "${pkgdir}/usr"
+    install -dm755 "${pkgdir}/usr"
 }
 package_systemback-cli() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-cli\n${license[@]}" | debtap -q "${pkgbase}-cli_${pkgver}_amd64.deb"
+    depends+=('ncurses' 'libsystemback' 'systemback-efiboot-amd64')
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli/usr" "${pkgdir}/usr"
@@ -81,6 +83,8 @@ package_systemback-cli() {
 package_systemback-efiboot-amd64() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-efiboot-amd64\n${license[@]}" | debtap -q "${pkgbase}-efiboot-amd64_${pkgver}_amd64.deb"
+    depends=('syslinux')
+    optdepends=('grub' 'systemback')
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/usr" "${pkgdir}/usr"
@@ -89,6 +93,8 @@ package_systemback-efiboot-amd64() {
 package_systemback-locales() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-locales\n${license[@]}" | debtap -q "${pkgbase}-locales_${pkgver}_amd64.deb"
+    depends=()
+    optdepends=('systemback')
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/usr" "${pkgdir}/usr"
@@ -97,6 +103,8 @@ package_systemback-locales() {
 package_systemback-scheduler() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}-scheduler\n${license[@]}" | debtap -q "${pkgbase}-scheduler_${pkgver}_amd64.deb"
+    depends+=('libsystemback')
+    optdepends=('systemback')
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler/usr" "${pkgdir}/usr"
@@ -105,6 +113,7 @@ package_systemback-scheduler() {
 package_systemback() {
     # cd "${srcdir}/${pkgbase}-archlinux"
     # echo -e "${pkgbase}\n${license[@]}" | debtap -q "${pkgbase}_${pkgver}_amd64.deb"
+    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' )
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}"
     #bsdtar -xpf "${srcdir}/${pkgbase}-archlinux/${pkgbase}/data.tar.xz" -C "${srcdir}/${pkgbase}-archlinux/${pkgbase}"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}/usr" "${pkgdir}/usr"
