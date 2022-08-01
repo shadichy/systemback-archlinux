@@ -65,27 +65,27 @@ build() {
 
 package_libsystemback() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "lib${pkgbase}\n${license[@]}" | debtap -q "lib${pkgbase}-$pkgver-amd64.deb"
+    echo -e "lib${pkgbase}\n${license[@]}" | debtap -q "lib${pkgbase}_${pkgver}_amd64.deb"
 }
 package_systemback-cli() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "${pkgbase}-cli\n${license[@]}" | debtap -q "${pkgbase}-cli-$pkgver-amd64.deb"
+    echo -e "${pkgbase}-cli\n${license[@]}" | debtap -q "${pkgbase}-cli_${pkgver}_amd64.deb"
 }
 package_systemback-efiboot-amd64() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "${pkgbase}-efiboot-amd64\n${license[@]}" | debtap -q "${pkgbase}-efiboot-amd64-$pkgver-amd64.deb"
+    echo -e "${pkgbase}-efiboot-amd64\n${license[@]}" | debtap -q "${pkgbase}-efiboot-amd64_${pkgver}_amd64.deb"
 }
 package_systemback-locales() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "${pkgbase}-locales\n${license[@]}" | debtap -q "${pkgbase}-locales-$pkgver-amd64.deb"
+    echo -e "${pkgbase}-locales\n${license[@]}" | debtap -q "${pkgbase}-locales_${pkgver}_amd64.deb"
 }
 package_systemback-scheduler() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "${pkgbase}-scheduler\n${license[@]}" | debtap -q "${pkgbase}-scheduler-$pkgver-amd64.deb"
+    echo -e "${pkgbase}-scheduler\n${license[@]}" | debtap -q "${pkgbase}-scheduler_${pkgver}_amd64.deb"
 }
 package_systemback() {
     cd "${srcdir}/${pkgbase}-archlinux"
-    echo -e "${pkgbase}\n${license[@]}" | debtap -q "${pkgbase}-$pkgver-amd64.deb"
+    echo -e "${pkgbase}\n${license[@]}" | debtap -q "${pkgbase}_${pkgver}_amd64.deb"
 }
 
 
