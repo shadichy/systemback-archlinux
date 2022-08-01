@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
+CONFIG += c++11
 
 SUBDIRS += libsystemback \
            sbscheduler \
@@ -30,4 +31,5 @@ TRANSLATIONS = lang/systemback_hu.ts \
                lang/systemback_ru.ts \
                lang/systemback_tr.ts \
                lang/systemback_uk.ts \
+               lang/systemback_vi.ts \
                lang/systemback_zh_CN.ts

@@ -53,3 +53,10 @@ LIBS += -L../libsystemback \
         -lsystemback \
         -lcrypt \
         -lX11
+
+# for arch linux with gcc 12
+
+QMAKE_CC = gcc-11
+QMAKE_CXX = g++-11
+QMAKE_LINK = g++-11
+QMAKE_AR = gcc-ar-11 cqs

@@ -45,9 +45,17 @@ QMAKE_LFLAGS += -g \
 
 ! equals(QMAKE_CXX, clang++) {
     QMAKE_CXXFLAGS += -flto
-    QMAKE_LFLAGS += -flto
+    #QMAKE_LFLAGS += -flto
 }
 
 LIBS += -lmount \
         -lblkid \
         -lparted
+
+# for arch linux with gcc 12
+
+QMAKE_CC = gcc-11
+QMAKE_CXX = g++-11
+QMAKE_LINK = g++-11
+QMAKE_AR = gcc-ar-11 cqs
+#QMAKE_LFLAGS = -Wl,-Bsymbolic-functions -Wl,--as-needed -fuse-ld=gold -Wl,-z,relro -Wl,-O1 -shared -fPIC -Wl,-soname,libsystemback.so.1

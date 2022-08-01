@@ -24,10 +24,11 @@ systemback/systemback-cli/systemback-cli
 *.ppa.upload
 .vscode
 *.buildinfo
-systemback/.qmake.stash
+.qmake.stash
 systemback/systemback.pro.user
 *.buildinfo
 *-working-directory
 /src
 /systemback-archlinux
 .qt_for_python
+/systemback/*.json

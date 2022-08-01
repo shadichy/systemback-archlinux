@@ -17,7 +17,7 @@ build-arch-stamp: configure-stamp
 	touch build-arch-stamp
 
 build-indep-stamp:
-	lrelease -qt5 systemback.pro
+	lrelease-qt5 systemback.pro
 	touch build-indep-stamp
 
 clean:
@@ -38,7 +38,7 @@ binary-arch: build-arch
 	dh_fixperms -a
 	chmod 4755 debian/systemback-scheduler/usr/lib/systemback/sbsustart
 	dh_makeshlibs -nV "libsystemback (= $(shell dpkg-parsechangelog | sed -n 's/^Version: //p'))" -a
-	dh_shlibdeps -a
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -a
 	dh_installdeb -a
 	dh_gencontrol -a
 	dh_installdocs -a

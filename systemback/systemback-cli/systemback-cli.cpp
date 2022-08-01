@@ -20,7 +20,8 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QDir>
-#include <ncursesw/ncurses.h>
+// #include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 #ifdef timeout
 #undef timeout
@@ -55,7 +56,7 @@ void systemback::main()
                         return true;
 
                     return false;
-                }()) return sb::isfile("/cdrom/casper/filesystem.squashfs") || sb::isfile("/lib/live/mount/medium/live/filesystem.squashfs") ? 2
+                }()) return sb::isfile("/cdrom/live/airoot.sfs") ? 2
                     : getuid() + getgid() ? 3
                     : ! sb::lock(sb::Sblock) ? 4
                     : ! sb::lock(sb::Alpmlock) ? 5

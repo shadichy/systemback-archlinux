@@ -159,7 +159,7 @@
         <location filename="../systemback/systemback.ui" line="1436"/>
         <location filename="../systemback/systemback.ui" line="5110"/>
         <source>Reinstall GRUB 2 bootloader:</source>
-        <translation>Cài đặt lại trình khởi động GRUB 2:<translation>
+        <translation>Cài đặt lại trình khởi động GRUB 2:</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="1455"/>
