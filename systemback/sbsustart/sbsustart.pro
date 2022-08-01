@@ -23,11 +23,6 @@ QMAKE_CXXFLAGS += -g \
                   -fvisibility-inlines-hidden \
                   -fno-asynchronous-unwind-tables
 
-CONFIG(debug, debug|release) {
-    QMAKE_CXXFLAGS_WARN_ON += -Wextra \
-                              -Wshadow 
-                              #-Werror
-}
 
 QMAKE_LFLAGS += -g \
                 -Wl,-rpath=/usr/lib/systemback \
