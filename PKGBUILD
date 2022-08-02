@@ -90,6 +90,7 @@ fi
 
 \$BASE_CMD
 EOF
+    chmod +755 "${pkgdir}/usr/bin/sbsustart"
     install -dm755 "${pkgdir}/usr"
 }
 package_systemback() {
