@@ -40,7 +40,6 @@
         pkgdesc='Systemback EFI bootloader support'
         depends=('syslinux' 'libsystemback')
         optdepends=('grub' 'systemback')
-        makedepends=('libsystemback' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper')
         dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
         cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
@@ -51,7 +50,6 @@
         pkgdesc='Systemback language support'
         depends=('libsystemback')
         optdepends=('systemback')
-        makedepends=('libsystemback' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper')
         dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
         cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
