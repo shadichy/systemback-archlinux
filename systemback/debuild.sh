@@ -18,10 +18,10 @@
 	dh_install -a
 	dh_installman debian/systemback.1 -p systemback
 	dh_installman debian/systemback-cli.1 -p systemback-cli
-	dh_strip --dbg-package=systemback-dbg -p systemback
-	dh_strip --dbg-package=systemback-cli-dbg -p systemback-cli
-	dh_strip --dbg-package=systemback-scheduler-dbg -p systemback-scheduler
-	dh_strip --dbg-package=libsystemback-dbg -p libsystemback
+	# dh_strip --dbg-package=systemback-dbg -p systemback
+	# dh_strip --dbg-package=systemback-cli-dbg -p systemback-cli
+	# dh_strip --dbg-package=systemback-scheduler-dbg -p systemback-scheduler
+	# dh_strip --dbg-package=libsystemback-dbg -p libsystemback
 	dh_link -a
 	dh_fixperms -a
 	chmod 4755 debian/systemback-scheduler/usr/lib/systemback/sbsustart

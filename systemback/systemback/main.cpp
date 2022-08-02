@@ -18,6 +18,7 @@
 
 #include "systemback.hpp"
 #include <QApplication>
+// #include <polkit/polkit.h>
 
 int main(int argc, char *argv[])
 {
@@ -26,8 +27,8 @@ int main(int argc, char *argv[])
 
     uchar rv([&a] {
             // if(qgetenv("XAUTHORITY").startsWith("/home/") && ! getuid())
-            // {
-            //     sb::error("\n " % sb::tr("Unsafe X Window authorization!") % "\n\n " % sb::tr("Please do not use 'sudo' command.") % "\n\n");
+            // {    
+            //     sb::error("\n " % sb::tr("Unsafe X Window authorization!") % "\n\n " % sb::tr("Please do not run systemback as pure root.") % "\n\n");
             //     return 1;
             // }
 
