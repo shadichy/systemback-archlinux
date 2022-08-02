@@ -8,7 +8,7 @@ arch=('x86_64')
 url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
 depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'gcc-libs' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz')
-optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse')
+optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'kdialog')
 makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper' 'util-linux' 'util-linux-libs' 'qt5-base>=5.5.0' 'gcc-libs' 'procps-ng')
 source=(systemback-archlinux::git+https://github.com/shadichy/systemback-archlinux.git)
 md5sums=('SKIP')
@@ -58,6 +58,38 @@ package_systemback-scheduler() {
     optdepends=('systemback')
     dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler"
     cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler/usr" "${pkgdir}/usr"
+    mkdir -p "${pkgdir}/usr/bin"
+    cat << EOF > "${pkgdir}/usr/bin/sbsustart"
+#!/bin/bash
+
+BASE_CMD="/usr/lib/systemback/sbsustart \$@"
+
+if test "x\`id -u\`" != "x0"; then
+    if test "xpkexec --disable-internal-agent" = "x"; then
+        echo "Root privileges are required for running systemback."
+        \$BASE_CMD
+        exit 1
+    fi
+    ENABLE_XHOST_ROOT=yes
+    GRANTED_XHOST_ROOT=no
+    if test "x\$ENABLE_XHOST_ROOT" = 'xyes' && xhost 1> /dev/null 2>&1; then
+        if ! xhost | grep -qi 'SI:localuser:root$'; then
+            xhost +SI:localuser:root
+            GRANTED_XHOST_ROOT=yes
+        fi
+    fi
+
+    pkexec --disable-internal-agent '/usr/bin/sbsustart' "\$@"
+    status=\$?
+
+    if test "x\$GRANTED_XHOST_ROOT" = 'xyes'; then
+        xhost -SI:localuser:root
+    fi
+    exit \$status
+fi
+
+\$BASE_CMD
+EOF
     install -dm755 "${pkgdir}/usr"
 }
 package_systemback() {
@@ -71,7 +103,7 @@ package_systemback() {
     cat <<EOF >"${pkgdir}/usr/bin/systemback"
 #!/bin/bash
 
-BASE_CMD="/usr/lib/systemback/sbbin"
+BASE_CMD="/usr/lib/systemback/sbbin \$@"
 
 if test "x\`id -u\`" != "x0"; then
     if test "xpkexec --disable-internal-agent" = "x"; then
@@ -123,5 +155,3 @@ EOF
 EOF
     install -dm755 "${pkgdir}/usr"
 }
-
-

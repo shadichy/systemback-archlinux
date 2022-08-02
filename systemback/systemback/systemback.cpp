@@ -305,9 +305,9 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
 
                         if(fscrn)
                             utimer.stop(), hide(),
-                            sb::exec("systemback finstall", sb::Wait);
+                            sb::exec("/usr/lib/systemback/sbbin finstall", sb::Wait);
                         else
-                            sb::exec("systemback", sb::Bckgrnd);
+                            sb::exec("/usr/lib/systemback/sbbin", sb::Bckgrnd);
 
                         close();
                     }
@@ -4034,16 +4034,16 @@ void systemback::on_repairmenu_clicked()
 void systemback::on_systemupgrade_clicked()
 {
     statustart(), pset(11);
-    QDateTime ofdate(QFileInfo("/usr/bin/systemback").lastModified());
+    QDateTime ofdate(QFileInfo("/usr/lib/systemback/sbbin").lastModified());
     sb::unlock(sb::Alpmlock),
     sb::exec("xterm +sb -bg grey85 -fg grey25 -fa a -fs 9 -geometry 80x24+" % QStr::number(ss(80)) % '+' % QStr::number(ss(70)) % " -n \"System upgrade\" -T \"System upgrade\" -cr grey40 -selbg grey86 -bw 0 -bc -bcf 500 -bcn 500 -e sbsysupgrade", sb::Noflag, "DBGLEV=0");
 
     if(isVisible())
     {
-        if(ofdate != QFileInfo("/usr/bin/systemback").lastModified())
+        if(ofdate != QFileInfo("/usr/lib/systemback/sbbin").lastModified())
             nrxth = true,
             sb::unlock(sb::Sblock),
-            sb::exec("systemback", sb::Bckgrnd),
+            sb::exec("/usr/lib/systemback/sbbin", sb::Bckgrnd),
             close();
         else if(sb::lock(sb::Alpmlock))
             ui->statuspanel->hide(),
