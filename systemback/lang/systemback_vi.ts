@@ -63,7 +63,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="647"/>
         <source>Created Live images</source>
-        <translation>Đã khởi tạo các live image</translation>
+        <translation>Live image đã khởi tạo</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="669"/>
@@ -87,7 +87,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="735"/>
         <source>Live operations</source>
-        <translation>Các tiến trình Live</translation>
+        <translation>Quy trình Live</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="822"/>
@@ -190,13 +190,13 @@
     <message>
         <location filename="../systemback/systemback.ui" line="1686"/>
         <source>Excludable items</source>
-        <translation>Các mục có thể bị loại trừ</translation>
+        <translation>Mục có thể loại trừ</translation>
         <!-- <translation> -->
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="1708"/>
         <source>Excluded items</source>
-        <translation>Các mục đã loại trừ</translation>
+        <translation>Mục đã loại trừ</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="1733"/>
@@ -274,7 +274,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="2615"/>
         <source>Simple system backup and restore application with extra features</source>
-        <translation>Phần mềm sao lưu và phục hồi đơn giản với các tính năng hữu ích</translation>
+        <translation>Phần mềm sao lưu và phục hồi đơn giản với nhiều tính năng hữu ích khác</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="2628"/>
@@ -311,7 +311,7 @@
         <location filename="../systemback/systemback.ui" line="3014"/>
         <source>Writable Linux filesystem!</source>
         <!-- <translation> -->
-        <translation>Tệp hệ thống Linux ghi được!</translation>
+        <translation>Tệp hệ thống Linux có thể ghi!</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3052"/>
@@ -336,22 +336,22 @@
     <message>
         <location filename="../systemback/systemback.ui" line="3324"/>
         <source>Restore points</source>
-        <translation>Các điểm khôi phục</translation>
+        <translation>Điểm khôi phục</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3346"/>
         <source>Highlighted restore points</source>
-        <translation>Các điểm khôi phục nổi bật</translation>
+        <translation>Điểm khôi phục nổi bật</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3368"/>
         <source>Point operations</source>
-        <translation>Các quy trình điểm</translation>
+        <translation>Quy trình</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3415"/>
         <source>Highlight</source>
-        <translation>Nổi bật</translation>
+        <translation>Làm nổi bật</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3437"/>
@@ -420,7 +420,7 @@
         <location filename="../systemback/systemback.ui" line="3771"/>
         <location filename="../systemback/systemback.cpp" line="3977"/>
         <source>System install</source>
-        <translation>Cài đặt hệ thốn</translation>
+        <translation>Lắp đặt hệ thống</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3803"/>
@@ -455,14 +455,14 @@
         <location filename="../systemback/systemback.ui" line="3931"/>
         <location filename="../systemback/systemback.cpp" line="4056"/>
         <source>Exclude</source>
-        <translation>Loại trừ</translation>
+        <translation>Mục loại trừ</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3963"/>
         <location filename="../systemback/systemback.cpp" line="4067"/>
         <source>Include</source>
         <!-- <translation> -->
-        <translation>Bao gồm</translation>
+        <translation>Mục thêm vào</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="4125"/>
@@ -539,7 +539,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="5006"/>
         <source>Include user(s):</source>
-        <translation>Bao gồm (các) người dùng:</translation>
+        <translation>Bao gồm người dùng:</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="5097"/>
@@ -678,7 +678,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="6388"/>
         <source>Override the used style:</source>
-        <translation>Ghi dè phong cách đã sử dụng:</translation>
+        <translation>Ghi đè phong cách đã sử dụng:</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="6407"/>
@@ -693,7 +693,7 @@
     <message>
         <location filename="../systemback/systemback.ui" line="6538"/>
         <source>Do not empty memory cache at the end of some processes</source>
-        <translation>Không được làm trống bộ nhớ cache khi hoàn thành các tiến trình</translation>
+        <translation>Không làm trống bộ nhớ cache khi hoàn thành các tiến trình</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="6570"/>
@@ -715,7 +715,7 @@ Những thứ này sẽ được định nghĩa là các cài dặt khôi phục
     <message>
         <location filename="../systemback/systemback.ui" line="6998"/>
         <source>! Interrupt !</source>
-        <translation>! Gián đoạn !</translation>
+        <translation>! Hủy bỏ !</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="7149"/>
@@ -1706,7 +1706,7 @@ Những thứ này sẽ được định nghĩa là các cài dặt khôi phục
     <message>
         <location filename="../systemback-cli/systemback-cli.cpp" line="139"/>
         <source>The restore points storage directory is not available or not writable!</source>
-        <translation>Thư mục lưu điểm khôi phục không khả dụng hoặc không thể ghi được!</translation>
+        <translation>Thư mục lưu điểm khôi phục không khả dụng hoặc không thể ghi!</translation>
     </message>
     <message>
         <location filename="../systemback-cli/systemback-cli.cpp" line="125"/>

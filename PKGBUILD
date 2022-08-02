@@ -71,12 +71,6 @@ package_systemback() {
     cat <<EOF >"${pkgdir}/usr/bin/systemback"
 #!/bin/bash
 
-if pidof sbbin 1> /dev/null; then
-    echo "The process sbbin is already running."
-    echo "Only one sbbin process is permitted."
-    exit 1
-fi
-
 BASE_CMD="/usr/lib/systemback/sbbin"
 
 if test "x\`id -u\`" != "x0"; then
