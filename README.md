@@ -12,12 +12,30 @@ Systemback makes it easy to create backups of the system and the users configura
 
 ## Install
 
-* Currently haven't have an aur page yet, but can be built using pure debian (-based) or with [debhelper](https://aur.archlinux.org/packages/debhelper)
+### Within Debian (-based)
+
+* It can be built using pure debian (-based, with [debhelper](https://aur.archlinux.org/packages/debhelper)) then convert to arch package with `debtap`
+
+### With AUR helper
 
 ```bash
 pacman-key --recv-key 50B2C005A67B264F --keyserver 'hkp://keyserver.ubuntu.com:80'
-yay -S systemback-bin # wont work
+yay -S systemback-bin # works with `paru` or any other aur helper
 ```
+
+### Prebuilt binaries
+
+* Prebuilt binaries are available at [yuunix_aur](https://github.com/shadichy/yuunix_aur)
+
+add this to your `/etc/pacman.conf` with npacman or the ATT.
+
+```conf
+[yuunix_aur]
+SigLevel = Optional TrustedOnly
+Server = <https://shadichy.github.io/>$repo/$arch
+```
+
+then run `sudo pacman -Sy systemback`
 
 ## Build
 
@@ -31,7 +49,7 @@ cd systemback-archlinux/
 ### Build package
 
 ```bash
-makepkg -si # will work if u have `debhelper`
+makepkg # will work if u resolved all deps
 ```
 
 #### Or
@@ -40,7 +58,7 @@ makepkg -si # will work if u have `debhelper`
 cd systemback/
 dpkg-buildpackage # or debuild
 cd ../
-debtap <package name>.deb
+debtap <package>.deb
 ```
 
 Images of Systemback
@@ -56,7 +74,7 @@ Arch support is still WIP:
 
 * ~~Move `apt` to `pacman`~~ (Done)
 * Move `casper` | `live-boot` to `mkinitcpio-live-boot`
-* Move `initramfs-tools` to `mkinitcpio`
+* ~~Move `initramfs-tools` to `mkinitcpio`~~
 * Add support for `overlayfs`, replacing `unionfs`
 * request upstream push :)
 
