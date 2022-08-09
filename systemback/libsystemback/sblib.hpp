@@ -81,9 +81,12 @@ public:
     template<typename T> static uchar stype(const T &path, bool flink = false);
 
     static uchar exec(cQStr &cmd, uchar flag = Noflag, cQStr &envv = nullptr),
-                 exec(cQSL &cmds);
+                exec(cQSL &cmds);
 
-    template<typename T1, typename T2> static bool issmfs(const T1 &item1, const T2 &item2);
+    static QStr execSTDOUT(cQStr &cmd);
+
+            template <typename T1, typename T2>
+            static bool issmfs(const T1 &item1, const T2 &item2);
     template<typename T> static fnln bool crtdir(const T &path);
     template<typename T> static fnln bool rmfile(const T &file);
     template<typename T> static bool exist(const T &path);
@@ -144,7 +147,7 @@ private:
     static bool ThrdBool, ThrdRslt;
 
     static QStr fdbg(cQStr &path1, cQStr &path2 = nullptr),
-                rlink(cQStr &path, ushort blen);
+        rlink(cQStr &path, ushort blen);
 
     static ullong devsize(cQStr &dev);
 
@@ -159,18 +162,18 @@ private:
     template<typename T1, typename T2> fnln bool crthlnk(const T1 &srclnk, const T2 &newlnk);
 
     bool odir(QBAL &balst, cQStr &path, uchar hidden = False, cQSL &ilist = QSL(), cQStr &ppath = nullptr),
-         thrdsrestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool sfstab),
-         cpertime(cQStr &srcitem, cQStr &newitem, bool skel = false),
-         cpfile(cQStr &srcfile, cQStr &newfile, bool skel = false),
-         thrdscopy(uchar mthd, cQStr &usr, cQStr &srcdir),
-         recrmdir(cbstr &path, bool slimit = false),
-         cplink(cQStr &srclink, cQStr &newlink),
-         cpdir(cQStr &srcdir, cQStr &newdir),
-         exclcheck(cQSL &elist, cQStr &item),
-         lcomp(cQStr &link1, cQStr &link2),
-         thrdcrtrpoint(cQStr &trgt),
-         thrdlvprpr(bool iudata),
-         umnt(cbstr &dev);
+        thrdsrestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool sfstab),
+        cpertime(cQStr &srcitem, cQStr &newitem, bool skel = false),
+        cpfile(cQStr &srcfile, cQStr &newfile, bool skel = false),
+        thrdscopy(uchar mthd, cQStr &usr, cQStr &srcdir),
+        recrmdir(cbstr &path, bool slimit = false),
+        cplink(cQStr &srclink, cQStr &newlink),
+        cpdir(cQStr &srcdir, cQStr &newdir),
+        exclcheck(cQSL &elist, cQStr &item),
+        lcomp(cQStr &link1, cQStr &link2),
+        thrdcrtrpoint(cQStr &trgt),
+        thrdlvprpr(bool iudata),
+        umnt(cbstr &dev);
 
     void edetect(QSL &elst, bool spath = false);
 };

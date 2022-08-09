@@ -788,7 +788,6 @@ bool sb::execsrch(cQStr &fname, cQStr &ppath)
 
     return false;
 }
-
 uchar sb::exec(cQStr &cmd, uchar flag, cQStr &envv)
 {
     auto exit([&cmd](uchar rv) -> uchar {
@@ -918,6 +917,18 @@ uchar sb::exec(cQSL &cmds)
     return 0;
 }
 
+QStr sb::execSTDOUT(cQStr &cmd)
+{
+    QProcess proc;
+    // run command and get output to ret
+    proc.start(cmd, QProcess::ReadOnly);
+    // if finnished without error, return stdout; else return stderr
+    if (proc.error() == QProcess::FailedToStart) return proc.errorString() + proc.readAllStandardError();
+    proc.waitForFinished(-1);
+    if (proc.exitStatus() == QProcess::CrashExit) return proc.errorString() + proc.readAllStandardError();
+    return proc.readAllStandardOutput();
+}
+
 bool sb::mcheck(cQStr &item, cQStr &mnts)
 {
     cQStr &itm(item.contains(' ') ? bstr(item).rplc(" ", "\\040") : item);
@@ -1016,11 +1027,11 @@ void sb::pupgrade()
 
 void sb::supgrade()
 {
-    exec("pacman -Syy");
+    exec("pacman -Syyu --noconfirm");
 
     forever
     {
-        if (!exec({"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm - "}))
+        if (!exec({"bash -c \"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm - \""}))
         {
             QStr rklist;
 

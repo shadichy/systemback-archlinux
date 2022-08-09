@@ -29,6 +29,8 @@ systemback/systemback.pro.user
 *.buildinfo
 *-working-directory
 /src
-/systemback-archlinux
+/systemback-*
 .qt_for_python
 /systemback/*.json
+/pkg
+/libsystemback

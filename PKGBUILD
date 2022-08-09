@@ -4,17 +4,17 @@
     pkgver=1.8.9
     pkgrel=2
     pkgdesc='Simple system backup and restore application with extra features'
-    arch=('x86_64')
+    arch=('x86_64' 'i386')
     url='https://github.com/shadichy/systemback-archlinux'
     license=('GPL')
     depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz' 'mkinitcpio-live-boot')
-    optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'kdialog')
+    optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'update-grub')
     makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper' 'util-linux' 'util-linux-libs' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng')
-    source=(systemback-archlinux::git+https://github.com/shadichy/systemback-archlinux.git)
-    md5sums=('SKIP')
+    # source=()
+    # md5sums=('SKIP')
 
     build() {
-        cd "${srcdir}/${pkgbase}-archlinux/${pkgbase}"
+        cd "../${pkgbase}"
         dpkg-buildpackage -d -us -uc
     }
 
@@ -22,16 +22,16 @@
         # cd "${srcdir}/${pkgbase}-archlinux"
         # echo -e "lib${pkgbase}\n${license[@]}" | debtap -q "lib${pkgbase}_${pkgver}_amd64.deb"
         pkgdesc='Libary for Systemback'
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/lib${pkgbase}/usr" "${pkgdir}/usr"
+        dpkg-deb -xv "../lib${pkgbase}_${pkgver}_amd64.deb" "../lib${pkgbase}"
+        cp -dr --no-preserve=ownership "../lib${pkgbase}/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
     }
     package_systemback-cli() {
         # cd "${srcdir}/${pkgbase}-archlinux"
         # echo -e "${pkgbase}-cli\n${license[@]}" | debtap -q "${pkgbase}-cli_${pkgver}_amd64.deb"
         depends+=('ncurses' 'libsystemback' 'systemback-efiboot-amd64')
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-cli/usr" "${pkgdir}/usr"
+        dpkg-deb -xv "../${pkgbase}-cli_${pkgver}_amd64.deb" "../${pkgbase}-cli"
+        cp -dr --no-preserve=ownership "../${pkgbase}-cli/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
     }
     package_systemback-efiboot-amd64() {
@@ -40,8 +40,8 @@
         pkgdesc='Systemback EFI bootloader support'
         depends=('syslinux' 'libsystemback')
         optdepends=('grub' 'systemback')
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-efiboot-amd64/usr" "${pkgdir}/usr"
+        dpkg-deb -xv "../${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "../${pkgbase}-efiboot-amd64"
+        cp -dr --no-preserve=ownership "../${pkgbase}-efiboot-amd64/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
     }
     package_systemback-locales() {
@@ -50,8 +50,8 @@
         pkgdesc='Systemback language support'
         depends=('libsystemback')
         optdepends=('systemback')
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales_${pkgver}_all.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-locales/usr" "${pkgdir}/usr"
+        dpkg-deb -xv "../${pkgbase}-locales_${pkgver}_all.deb" "../${pkgbase}-locales"
+        cp -dr --no-preserve=ownership "../${pkgbase}-locales/usr" "${pkgdir}/usr"
         install -dm755 "${pkgdir}/usr"
     }
     package_systemback-scheduler() {
@@ -60,10 +60,10 @@
         pkgdesc='Systemback scheduler'
         depends+=('libsystemback')
         optdepends=('systemback')
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}-scheduler/usr" "${pkgdir}/usr"
+        dpkg-deb -xv "../${pkgbase}-scheduler_${pkgver}_amd64.deb" "../${pkgbase}-scheduler"
+        cp -dr --no-preserve=ownership "../${pkgbase}-scheduler/usr" "${pkgdir}/usr"
         mkdir -p "${pkgdir}/usr/share/applications"
-        cp "${srcdir}/${pkgbase}-archlinux/${pkgbase}/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.sbsustart.desktop"
+        cp "../${pkgbase}/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.sbsustart.desktop"
         mkdir -p "${pkgdir}/usr/bin"
         cat << EOF > "${pkgdir}/usr/bin/sbsustart"
 #!/bin/bash
@@ -125,8 +125,9 @@ EOF
         # cd "${srcdir}/${pkgbase}-archlinux"
         # echo -e "${pkgbase}\n${license[@]}" | debtap -q "${pkgbase}_${pkgver}_amd64.deb"
         depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' )
-        dpkg-deb -xv "${srcdir}/${pkgbase}-archlinux/${pkgbase}_${pkgver}_amd64.deb" "${srcdir}/${pkgbase}-archlinux/${pkgbase}"
-        cp -dr --no-preserve=ownership "${srcdir}/${pkgbase}-archlinux/${pkgbase}/usr" "${pkgdir}/usr"
+        optdepends+=( 'kdialog' )
+        dpkg-deb -xv "../${pkgbase}_${pkgver}_amd64.deb" "../${pkgbase}"
+        cp -dr --no-preserve=ownership "../${pkgbase}/usr" "${pkgdir}/usr"
         cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"
         mv "${pkgdir}/usr/bin/systemback" "${pkgdir}/usr/lib/systemback/sbbin"
         cat <<EOF >"${pkgdir}/usr/bin/systemback"
@@ -161,6 +162,7 @@ fi
 \$BASE_CMD
 EOF
         chmod +755 "${pkgdir}/usr/bin/systemback"
+        mkdir -p "${pkgdir}/usr/share/systemback/scripts"
         mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
         cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.systemback.policy"
 <?xml version="1.0"?>

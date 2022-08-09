@@ -79,7 +79,9 @@ private:
     QCB getppipe(uchar num);
 
     QStr guname(),
-         ckname();
+        ckname(),
+        rkernel(),
+        ugrubcmd();
 
     QRect sgeom(bool rdc = false, QDW dtp = nullptr);
     ushort ss(ushort dsize);
