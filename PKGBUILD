@@ -40,6 +40,7 @@ package_libsystemback() {
 }
 package_systemback-cli() {
     depends+=('ncurses' 'libsystemback' 'systemback-efiboot-amd64')
+    optdepends+=('amd-ucode' 'intel-ucode')
     dpkg-deb -xv "../${pkgbase}-cli_${pkgver}_${march}.deb" "${pkgdir}"
     install -dm755 "${pkgdir}/usr"
 }
@@ -123,7 +124,7 @@ EOF
 }
 package_systemback() {
     depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' 'grub' 'mtools')
-    optdepends+=( 'kdialog' )
+    optdepends+=('kdialog' 'amd-ucode' 'intel-ucode')
     dpkg-deb -xv "../${pkgbase}_${pkgver}_${march}.deb" "${pkgdir}"
     cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"
     mv "${pkgdir}/usr/bin/systemback" "${pkgdir}/usr/lib/systemback/sbbin"
@@ -159,6 +160,7 @@ fi
 \$BASE_CMD
 EOF
     chmod +755 "${pkgdir}/usr/bin/systemback"
+    cp "../${pkgbase}/reserved_usernames" "${pkgdir}/usr/share/systemback/reserved_usernames"
     mkdir -p "${pkgdir}/usr/share/systemback/scripts"
     mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
     cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.systemback.policy"
