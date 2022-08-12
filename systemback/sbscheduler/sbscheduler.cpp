@@ -71,8 +71,9 @@ void scheduler::main()
             break;
         }
 
-        if(! sb::isfile(cfgfile) || cfglmd != QFileInfo(cfgfile).lastModified()) sb::cfgread(),
-                                                                                 cfglmd = QFileInfo(cfgfile).lastModified();
+        if(! sb::isfile(cfgfile) || cfglmd != QFileInfo(cfgfile).lastModified()) 
+            sb::cfgread(),
+            cfglmd = QFileInfo(cfgfile).lastModified();
 
         if(! (sb::isdir(sb::sdir[1]) && sb::access(sb::sdir[1], sb::Write)))
             sleep(50);
@@ -99,8 +100,10 @@ void scheduler::main()
                     if((qEnvironmentVariableIsSet("XAUTHORITY") && QFile(qgetenv("XAUTHORITY")).copy(xauth)) || [&] {
                             QStr path("/home/" % qApp->arguments().at(1) % "/.Xauthority");
                             return (sb::isfile(path) && QFile(path).copy(xauth)) || (sb::isfile(path = usrhm % "/.Xauthority") && QFile(path).copy(xauth));
-                        }()) sb::exec("/usr/lib/systemback/sbbin schedule", sb::Wait, "XAUTHORITY=" % xauth),
-                             sb::rmfile(xauth);
+                        }()) 
+                        sb::exec("/usr/lib/systemback/sbbin schedule", 
+                        sb::Wait, "XAUTHORITY=" % xauth),
+                        sb::rmfile(xauth);
                 }
 
                 sb::unlock(sb::Sblock), sb::unlock(sb::Alpmlock), sleep(50);

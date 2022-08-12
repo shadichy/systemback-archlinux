@@ -1,71 +1,71 @@
-    # Maintainer: shadichy <shadichy.dev@gmail.com>
-    pkgbase=systemback
-    pkgname=("lib${pkgbase}" "${pkgbase}-cli" "${pkgbase}-efiboot-amd64" "${pkgbase}-locales" "${pkgbase}-scheduler" "${pkgbase}")
-    pkgver=1.8.9
-    pkgrel=2
-    pkgdesc='Simple system backup and restore application with extra features'
-    arch=('x86_64' 'i386')
-    url='https://github.com/shadichy/systemback-archlinux'
-    license=('GPL')
-    depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz' 'mkinitcpio-live-boot')
-    optdepends=('grub' 'btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'update-grub')
-    makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper' 'util-linux' 'util-linux-libs' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng')
-    # source=()
-    # md5sums=('SKIP')
+# Maintainer: shadichy <shadichy.dev@gmail.com>
+pkgbase=systemback
+pkgname=("lib${pkgbase}" "${pkgbase}-cli" "${pkgbase}-efiboot-amd64" "${pkgbase}-locales" "${pkgbase}-scheduler" "${pkgbase}")
+pkgver=1.8.9
+pkgrel=2
+pkgdesc='Simple system backup and restore application with extra features'
+arch=(any)
+march=""
+url='https://github.com/shadichy/systemback-archlinux'
+license=('GPL')
+depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz' 'mkinitcpio-live-boot')
+optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'update-grub' 'cdrtools')
+makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'debhelper' 'util-linux' 'util-linux-libs' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng')
+# source=()
+# md5sums=('SKIP')
 
-    build() {
-        cd "../${pkgbase}"
-        dpkg-buildpackage -d -us -uc
-    }
+case $(uname -m) in
+    x86_64)
+        march="amd64"
+        ;;
+    i686)
+        march="i386"
+        depends+=( 'libxcrypt-compat' 'llvm13-libs')
+        ;;
+    *)
+        echo "Unsupported architecture: $(uname -m)"
+        exit 1
+        ;;
+esac
 
-    package_libsystemback() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "lib${pkgbase}\n${license[@]}" | debtap -q "lib${pkgbase}_${pkgver}_amd64.deb"
-        pkgdesc='Libary for Systemback'
-        dpkg-deb -xv "../lib${pkgbase}_${pkgver}_amd64.deb" "../lib${pkgbase}"
-        cp -dr --no-preserve=ownership "../lib${pkgbase}/usr" "${pkgdir}/usr"
-        install -dm755 "${pkgdir}/usr"
-    }
-    package_systemback-cli() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "${pkgbase}-cli\n${license[@]}" | debtap -q "${pkgbase}-cli_${pkgver}_amd64.deb"
-        depends+=('ncurses' 'libsystemback' 'systemback-efiboot-amd64')
-        dpkg-deb -xv "../${pkgbase}-cli_${pkgver}_amd64.deb" "../${pkgbase}-cli"
-        cp -dr --no-preserve=ownership "../${pkgbase}-cli/usr" "${pkgdir}/usr"
-        install -dm755 "${pkgdir}/usr"
-    }
-    package_systemback-efiboot-amd64() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "${pkgbase}-efiboot-amd64\n${license[@]}" | debtap -q "${pkgbase}-efiboot-amd64_${pkgver}_amd64.deb"
-        pkgdesc='Systemback EFI bootloader support'
-        depends=('syslinux' 'libsystemback')
-        optdepends=('grub' 'systemback')
-        dpkg-deb -xv "../${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "../${pkgbase}-efiboot-amd64"
-        cp -dr --no-preserve=ownership "../${pkgbase}-efiboot-amd64/usr" "${pkgdir}/usr"
-        install -dm755 "${pkgdir}/usr"
-    }
-    package_systemback-locales() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "${pkgbase}-locales\n${license[@]}" | debtap -q "${pkgbase}-locales_${pkgver}_amd64.deb"
-        pkgdesc='Systemback language support'
-        depends=('libsystemback')
-        optdepends=('systemback')
-        dpkg-deb -xv "../${pkgbase}-locales_${pkgver}_all.deb" "../${pkgbase}-locales"
-        cp -dr --no-preserve=ownership "../${pkgbase}-locales/usr" "${pkgdir}/usr"
-        install -dm755 "${pkgdir}/usr"
-    }
-    package_systemback-scheduler() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "${pkgbase}-scheduler\n${license[@]}" | debtap -q "${pkgbase}-scheduler_${pkgver}_amd64.deb"
-        pkgdesc='Systemback scheduler'
-        depends+=('libsystemback')
-        optdepends=('systemback')
-        dpkg-deb -xv "../${pkgbase}-scheduler_${pkgver}_amd64.deb" "../${pkgbase}-scheduler"
-        cp -dr --no-preserve=ownership "../${pkgbase}-scheduler/usr" "${pkgdir}/usr"
-        mkdir -p "${pkgdir}/usr/share/applications"
-        cp "../${pkgbase}/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.sbsustart.desktop"
-        mkdir -p "${pkgdir}/usr/bin"
-        cat << EOF > "${pkgdir}/usr/bin/sbsustart"
+build() {
+    cd "../${pkgbase}"
+    dpkg-buildpackage -d -us -uc
+}
+
+package_libsystemback() {
+    pkgdesc='Libary for Systemback'
+    dpkg-deb -xv "../lib${pkgbase}_${pkgver}_${march}.deb" "${pkgdir}"
+    install -dm755 "${pkgdir}/usr"
+}
+package_systemback-cli() {
+    depends+=('ncurses' 'libsystemback' 'systemback-efiboot-amd64')
+    dpkg-deb -xv "../${pkgbase}-cli_${pkgver}_${march}.deb" "${pkgdir}"
+    install -dm755 "${pkgdir}/usr"
+}
+package_systemback-efiboot-amd64() {
+    pkgdesc='Systemback EFI bootloader support'
+    depends=('syslinux' 'libsystemback')
+    optdepends=('grub' 'systemback')
+    dpkg-deb -xv "../${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${pkgdir}"
+    install -dm755 "${pkgdir}/usr"
+}
+package_systemback-locales() {
+    pkgdesc='Systemback language support'
+    depends=('libsystemback')
+    optdepends=('systemback')
+    dpkg-deb -xv "../${pkgbase}-locales_${pkgver}_all.deb" "${pkgdir}"
+    install -dm755 "${pkgdir}/usr"
+}
+package_systemback-scheduler() {
+    pkgdesc='Systemback scheduler'
+    depends+=('libsystemback')
+    optdepends=('systemback')
+    dpkg-deb -xv "../${pkgbase}-scheduler_${pkgver}_${march}.deb" "${pkgdir}"
+    mkdir -p "${pkgdir}/usr/share/applications"
+    cp "../${pkgbase}/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.sbsustart.desktop"
+    mkdir -p "${pkgdir}/usr/bin"
+    cat << EOF > "${pkgdir}/usr/bin/sbsustart"
 #!/bin/bash
 
 BASE_CMD="/usr/lib/systemback/sbsustart \$@"
@@ -97,9 +97,9 @@ fi
 
 \$BASE_CMD
 EOF
-        chmod +755 "${pkgdir}/usr/bin/sbsustart"
-        mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
-        cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.sbsustart.policy"
+    chmod +755 "${pkgdir}/usr/bin/sbsustart"
+    mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
+    cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.sbsustart.policy"
 <?xml version="1.0"?>
 <!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
@@ -119,18 +119,15 @@ EOF
     </action>
 </policyconfig>
 EOF
-        install -dm755 "${pkgdir}/usr"
-    }
-    package_systemback() {
-        # cd "${srcdir}/${pkgbase}-archlinux"
-        # echo -e "${pkgbase}\n${license[@]}" | debtap -q "${pkgbase}_${pkgver}_amd64.deb"
-        depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' )
-        optdepends+=( 'kdialog' )
-        dpkg-deb -xv "../${pkgbase}_${pkgver}_amd64.deb" "../${pkgbase}"
-        cp -dr --no-preserve=ownership "../${pkgbase}/usr" "${pkgdir}/usr"
-        cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"
-        mv "${pkgdir}/usr/bin/systemback" "${pkgdir}/usr/lib/systemback/sbbin"
-        cat <<EOF >"${pkgdir}/usr/bin/systemback"
+    install -dm755 "${pkgdir}/usr"
+}
+package_systemback() {
+    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' 'grub' 'mtools')
+    optdepends+=( 'kdialog' )
+    dpkg-deb -xv "../${pkgbase}_${pkgver}_${march}.deb" "${pkgdir}"
+    cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"
+    mv "${pkgdir}/usr/bin/systemback" "${pkgdir}/usr/lib/systemback/sbbin"
+    cat <<EOF >"${pkgdir}/usr/bin/systemback"
 #!/bin/bash
 
 BASE_CMD="/usr/lib/systemback/sbbin \$@"
@@ -161,10 +158,10 @@ fi
 
 \$BASE_CMD
 EOF
-        chmod +755 "${pkgdir}/usr/bin/systemback"
-        mkdir -p "${pkgdir}/usr/share/systemback/scripts"
-        mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
-        cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.systemback.policy"
+    chmod +755 "${pkgdir}/usr/bin/systemback"
+    mkdir -p "${pkgdir}/usr/share/systemback/scripts"
+    mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
+    cat << EOF > "${pkgdir}/usr/share/polkit-1/actions/org.systemback.systemback.policy"
 <?xml version="1.0"?>
 <!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
@@ -184,8 +181,8 @@ EOF
     </action>
 </policyconfig>
 EOF
-        mkdir -p "${pkgdir}/etc/systemback"
-        cat << EOF > "${pkgdir}/etc/systemback/systemback.conf"
+    mkdir -p "${pkgdir}/etc/systemback"
+    cat << EOF > "${pkgdir}/etc/systemback/systemback.conf"
 ### Restore points settings
 
 #  storage_directory=<path>
@@ -234,8 +231,8 @@ EOF
 
 
 EOF
-        touch "${pkgdir}/etc/systemback/systemback.includes"
-        touch "${pkgdir}/etc/systemback/systemback.excludes"
-        install -dm755 "${pkgdir}/usr"
-        install -dm755 "${pkgdir}/etc"
-    }
+    touch "${pkgdir}/etc/systemback/systemback.includes"
+    touch "${pkgdir}/etc/systemback/systemback.excludes"
+    install -dm755 "${pkgdir}/usr"
+    install -dm755 "${pkgdir}/etc"
+}

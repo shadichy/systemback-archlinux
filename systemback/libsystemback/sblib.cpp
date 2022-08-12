@@ -496,6 +496,17 @@ bool sb::lock(uchar type)
 void sb::unlock(uchar type)
 {
     close(sblock[type]);
+    switch (type) {
+    case Sblock:
+        exist("/run/systemback.lock") ? remove("/run/systemback.lock") : exist("/var/run/systemback.lock") ? remove("/var/run/systemback.lock") : 0;
+        break;
+    case Alpmlock:
+        exist("/var/lib/pacman/db.lck") ? remove("/var/lib/pacman/db.lck") : 0;
+        break;
+    default:
+        exist("/run/sbscheduler.lock") ? remove("/run/sbscheduler.lock") : exist("/var/run/sbscheduler.lock") ? remove("/var/run/sbscheduler.lock") : 0;
+        break;
+    }
 }
 
 void sb::delay(ushort msec)
@@ -836,7 +847,8 @@ uchar sb::exec(cQStr &cmd, uchar flag, cQStr &envv)
         while(proc.state() == QProcess::Running)
         {
             msleep(10), qApp->processEvents();
-            if(ExecKill) proc.kill();
+            if(ExecKill)
+                proc.kill();
 
             switch(rprcnt) {
             case 1:
@@ -920,13 +932,12 @@ uchar sb::exec(cQSL &cmds)
 QStr sb::execSTDOUT(cQStr &cmd)
 {
     QProcess proc;
-    // run command and get output to ret
     proc.start(cmd, QProcess::ReadOnly);
-    // if finnished without error, return stdout; else return stderr
-    if (proc.error() == QProcess::FailedToStart) return proc.errorString() + proc.readAllStandardError();
-    proc.waitForFinished(-1);
-    if (proc.exitStatus() == QProcess::CrashExit) return proc.errorString() + proc.readAllStandardError();
-    return proc.readAllStandardOutput();
+    return ((proc.error() == QProcess::FailedToStart) ||
+        (proc.waitForFinished(-1) &&
+        proc.exitStatus() == QProcess::CrashExit)) ? 
+            proc.readAllStandardError() : 
+            proc.readAllStandardOutput();
 }
 
 bool sb::mcheck(cQStr &item, cQStr &mnts)

@@ -81,35 +81,39 @@ private:
     QStr guname(),
         ckname(),
         rkernel(),
-        ugrubcmd();
+        ugrubcmd(),
+        mkisocmd(cQStr &path, cQStr &out);
+
+    bool cpdir(cQStr &src, cQStr &newdir);
 
     QRect sgeom(bool rdc = false, QDW dtp = nullptr);
     ushort ss(ushort dsize);
     template<typename T> bool cfmod(const T &path, ushort mode);
 
     bool minside(cQRect &rct),
-         minside(QWdt wgt);
+        minside(QWdt wgt);
+    
 
     void windowmove(ushort nwidth, ushort nheight, bool fxdw = true),
-         dialogopen(ushort dlg = 0, cbstr &dev = nullptr),
-         ilstupdt(bool inc = false, cQStr &dir = nullptr),
-         pset(uchar type, cbstr &tend = nullptr),
-         dirxpnd(QTrWI *item, bool inc = false),
-         ptxtchange(uchar num, cQStr &txt),
-         setwontop(bool state = true),
-         busy(bool state = true),
-         pnmchange(uchar num),
-         pntupgrade(),
-         emptycache(),
-         statustart(),
-         systemcopy(),
-         livewrite(),
-         rmntcheck(),
-         stschange(),
-         bttnsshow(),
-         bttnshide(),
-         restore(),
-         repair();
+        dialogopen(ushort dlg = 0, cbstr &dev = nullptr),
+        ilstupdt(bool inc = false, cQStr &dir = nullptr),
+        pset(uchar type, cbstr &tend = nullptr),
+        dirxpnd(QTrWI *item, bool inc = false),
+        ptxtchange(uchar num, cQStr &txt),
+        setwontop(bool state = true),
+        busy(bool state = true),
+        pnmchange(uchar num),
+        pntupgrade(),
+        emptycache(),
+        statustart(),
+        systemcopy(),
+        livewrite(),
+        rmntcheck(),
+        stschange(),
+        bttnsshow(),
+        bttnshide(),
+        restore(),
+        repair();
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 3, 0)
 private slots:
