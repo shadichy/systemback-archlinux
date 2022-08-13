@@ -106,8 +106,6 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
 
             return 0;
         }();
-        
-    std::cout << (sstart ? "sbsched enabled" : "sbsched disabled") << std::endl;
 
     QRect sgm(sgeom());
 
@@ -2735,7 +2733,7 @@ void systemback::livewrite()
 
     QStr kname(rkernel());
 
-        if (lrdir == "sblive")
+    if(lrdir == "sblive")
     {
         if(sb::exec("tar -xf \"" % sb::sdir[2] % "\"/" % sb::left(ui->livelist->currentItem()->text(), sb::instr(ui->livelist->currentItem()->text(), " ") - 1) % ".sblive -C /.sblivesystemwrite/sblive --no-same-owner --no-same-permissions", sb::Prgrss)) return err(323);
     }
@@ -2743,7 +2741,8 @@ void systemback::livewrite()
         return err(323);
 
     pset(1);
-    if(sb::exec("syslinux -ifd syslinux " % ldev % ((ismmc || isnvme) ? "p" : nullptr) % '1')) return err();
+    if (sb::exec("syslinux -ifd syslinux " % ldev % ((ismmc || isnvme) ? "p" : nullptr) % '1') || sb::exec("bash -c \"rm -rf /.sblivesystemwrite/" % lrdir % "/efi*\"") || sb::exec("tar --zstd -xf /usr/share/systemback/grub-efi-usb-amd64.bootfiles -C /.sblivesystemwrite/" % lrdir % " --no-same-owner --no-same-permissions"))
+        return err();
     sb::fssync();
     if(sb::ecache) sb::crtfile("/proc/sys/vm/drop_caches", "3");
     sb::umount("/.sblivesystemwrite/sblive"),
@@ -3953,7 +3952,7 @@ void systemback::on_point15_textChanged(cQStr &arg1)
 
 void systemback::on_restoremenu_clicked()
 {
-    if(sb::execsrch("" % ugrubcmd(), sb::sdir[1] % '/' % cpoint % '_' % pname))
+    if(sb::execsrch("grub-mkconfig", sb::sdir[1] % '/' % cpoint % '_' % pname))
     {
         if(ui->grubreinstallrestoredisable->isVisibleTo(ui->restorepanel))
             ui->grubreinstallrestoredisable->hide(),
@@ -7558,7 +7557,6 @@ void systemback::on_livenew_clicked()
         sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/lib/pacman/sync/*\"");
         sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/lib/systemd/coredump/*\"");
         if(sb::exec("mksquashfs" % ide % " \"" % sb::sdir[2] % "\"/.sblivesystemcreate/.systemback /media/.sblvtmp/media /var/.sblvtmp/var \"" % sb::sdir[2] % "\"/.sblivesystemcreate/live/airootfs.sfs " % (sb::xzcmpr ? "-comp xz " : "-comp zstd ") % " -info -b 1M -no-duplicates -no-recovery -always-use-fragments " % elist, sb::Prgrss)) return err(311);
-        // std::cout << sb::execSTDOUT("mksquashfs" % ide % " \"" % sb::sdir[2] % "\"/.sblivesystemcreate/.systemback /media/.sblvtmp/media /var/.sblvtmp/var \"" % sb::sdir[2] % "\"/.sblivesystemcreate/live/airootfs.sfs " % (sb::xzcmpr ? "-comp xz " : "-comp zstd ") % " -info -b 1M -no-duplicates -no-recovery -always-use-fragments " % elist).toStdString() << std::endl;
     }
 
     pset(19, " 3/3"),
