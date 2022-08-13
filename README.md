@@ -89,3 +89,7 @@ Arch support is still WIP:
 
 * Merge from <https://github.com/fconidi/Systemback_source-1.9.4>
 * Add support for NVMe
+
+## Support me
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/shadichy)
