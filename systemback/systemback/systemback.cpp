@@ -7484,9 +7484,7 @@ void systemback::on_livenew_clicked()
         return err();
     QStr kdir(sb::execSTDOUT("uname -r"));
     {
-        uchar rv(sb::exec("mkinitcpio -S autodetect -A live_hook -k " % kdir % " -g " % sb::sdir[2] % "/.sblivesystemcreate/initramfs-" % kname % ".img"));
-
-        sb::copy(sb::sdir[2] % "/.sblivesystemcreate/initramfs-" % kname % ".img", sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img");
+        uchar rv(sb::exec("mkinitcpio -S autodetect -A live_hook -k " % kdir % " -g " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img"));
 
         // if(lvtype == "casper")
         // {
@@ -7519,6 +7517,7 @@ void systemback::on_livenew_clicked()
         for (cQStr &item : {"/.sblvtmp/boot", "/.sblvtmp/cdrom", "/.sblvtmp/dev", "/.sblvtmp/mnt", "/.sblvtmp/proc", "/.sblvtmp/run", "/.sblvtmp/srv", "/.sblvtmp/sys", "/.sblvtmp/tmp", "/bin", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/snap/.sblvtmp/snap", "/usr"}) 
             if (sb::exist(item)) ide.append(' ' % item);
         if(sb::exist("/boot/vmlinuz-" % kname)) ide.append(" /boot/vmlinuz-" % kname);
+        ide.append(" " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img");
 
         if (sb::isdir(sb::sdir[2] % "/.sblivesystemcreate/userdata"))
         {
