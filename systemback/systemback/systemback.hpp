@@ -82,7 +82,8 @@ private:
         ckname(),
         rkernel(),
         ugrubcmd(),
-        mkisocmd(cQStr &path, cQStr &out);
+        mkisocmd(cQStr &path, cQStr &out),
+        rebootcmd();
 
     bool cpdir(cQStr &src, cQStr &newdir);
 

@@ -2741,7 +2741,7 @@ void systemback::livewrite()
         return err(323);
 
     pset(1);
-    if (sb::exec("syslinux -ifd syslinux " % ldev % ((ismmc || isnvme) ? "p" : nullptr) % '1') || sb::exec("bash -c \"rm -rf /.sblivesystemwrite/" % lrdir % "/efi*\"") || sb::exec("tar --zstd -xf /usr/share/systemback/grub-efi-usb-amd64.bootfiles -C /.sblivesystemwrite/" % lrdir % " --no-same-owner --no-same-permissions"))
+    if (sb::exec("syslinux -ifd syslinux " % ldev % ((ismmc || isnvme) ? "p" : nullptr) % '1'))
         return err();
     sb::fssync();
     if(sb::ecache) sb::crtfile("/proc/sys/vm/drop_caches", "3");
@@ -4991,6 +4991,20 @@ void systemback::on_liveexclude_clicked()
     on_pointexclude_clicked();
 }
 
+QStr systemback::rebootcmd()
+{
+    return (
+        sb::execsrch("reboot") ? "reboot" : 
+        sb::execsrch("systemctl") ? "systemctl reboot" : 
+        sb::execsrch("loginctl") ? "loginctl reboot" : 
+        sb::execsrch("openrc-shutdown") ? "openrc-shutdown -r now" : 
+        sb::execsrch("runit-init") ? "runit-init 6" : 
+        sb::execsrch("66-hpr") ? "66-hpr -r now" : 
+        sb::execsrch("s6-linux-init-hpr") ? "s6-linux-init-hpr -r now" : 
+        "init 6"
+    );
+}
+
 void systemback::on_dialogok_clicked()
 {
     if(ui->dialogok->text() == "OK")
@@ -5097,7 +5111,7 @@ void systemback::on_dialogok_clicked()
         }
     else if(ui->dialogok->text() == tr("Reboot"))
     {
-        sb::exec(sb::execsrch("reboot") ? "reboot" : "systemctl reboot", sb::Bckgrnd);
+        sb::exec(rebootcmd(), sb::Bckgrnd);
 
         if(fscrn)
         {

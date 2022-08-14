@@ -177,7 +177,7 @@ QStr sb::dbginf()
 {
     QStr txt("\n Systemback\n\n " % tr("Version:") % ' ' % appver() % "\n " % tr("Compilation date and time:") % ' ' % __DATE__ % ' ' % __TIME__ % "\n " % tr("Installed files:") % [] {
             QStr fls;
-            QSL lst{"/etc/xdg/autostart/sbschedule-kde.desktop", "/etc/xdg/autostart/sbschedule.desktop", "/usr/bin/systemback", "/usr/bin/systemback-cli", "/usr/bin/systemback-sustart", "/usr/lib/systemback/libsystemback.so", "/usr/lib/systemback/libsystemback.so.1", "/usr/lib/systemback/libsystemback.so.1.0", "/usr/lib/systemback/libsystemback.so.1.0.0", "/usr/lib/systemback/sbbin", "/usr/lib/systemback/sbscheduler", "/usr/lib/systemback/sbsustart", "/usr/lib/systemback/sbsysupgrade", "/usr/share/applications/systemback-kde.desktop", "/usr/share/applications/systemback.desktop", "/usr/share/systemback/efi-amd64.bootfiles", "/usr/share/systemback/grub-efi-usb-amd64.bootfiles"};
+            QSL lst{"/etc/xdg/autostart/sbschedule-kde.desktop", "/etc/xdg/autostart/sbschedule.desktop", "/usr/bin/systemback", "/usr/bin/systemback-cli", "/usr/bin/systemback-sustart", "/usr/lib/systemback/libsystemback.so", "/usr/lib/systemback/libsystemback.so.1", "/usr/lib/systemback/libsystemback.so.1.0", "/usr/lib/systemback/libsystemback.so.1.0.0", "/usr/lib/systemback/sbbin", "/usr/lib/systemback/sbscheduler", "/usr/lib/systemback/sbsustart", "/usr/lib/systemback/sbsysupgrade", "/usr/share/applications/systemback-kde.desktop", "/usr/share/applications/systemback.desktop", "/usr/share/systemback/efi-amd64.bootfiles"};
             uchar ind(tr("Installed files:").length() + 2);
 
             if(isdir("/usr/share/systemback/lang"))

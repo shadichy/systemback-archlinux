@@ -420,7 +420,7 @@
         <location filename="../systemback/systemback.ui" line="3771"/>
         <location filename="../systemback/systemback.cpp" line="3977"/>
         <source>System install</source>
-        <translation>Lắp đặt hệ thống</translation>
+        <translation>Cài đặt hệ điều hành</translation>
     </message>
     <message>
         <location filename="../systemback/systemback.ui" line="3803"/>
