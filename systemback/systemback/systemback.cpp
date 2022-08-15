@@ -1875,7 +1875,7 @@ void systemback::statustart()
 
 QStr systemback::ugrubcmd()
 {
-    return (sb::exist("/usr/bin/update-grub") ? "update-grub" : "grub-mkconfig -o /boot/grub/grub.cfg");
+    return (sb::execsrch("update-grub") ? "update-grub" : "grub-mkconfig -o /boot/grub/grub.cfg");
 }
 
 void systemback::restore()
@@ -1901,7 +1901,8 @@ void systemback::restore()
 
                 if(fcmp < 2 || ! (ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto"))
                 {
-                    if(sb::exec("grub-install --force " % (grub.isEFI ? nullptr : ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto" ? sb::gdetect() : ui->grubreinstallrestore->currentText()))) dialog = 309;
+                    if(sb::exec("grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto" ? sb::gdetect() : ui->grubreinstallrestore->currentText()))) 
+                        dialog = 309;
                     if(intrrpt) return exit();
                 }
             }
@@ -1938,7 +1939,7 @@ void systemback::repair()
     {
         QSL mlst{"dev", "dev/pts", "proc", "sys"};
         for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
-        dialog = sb::exec("chroot /mnt sh -c \"" % ugrubcmd() % " ; grub-install --force " % (grub.isEFI ? nullptr : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % '\"') ? 318 : 208,
+        dialog = sb::exec("chroot /mnt bash -c \"grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % ";" % ugrubcmd() % "\"") ? 318 : 208,
         mlst.move(0, 1);
         for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
         if(intrrpt) return exit();
@@ -1990,7 +1991,8 @@ void systemback::repair()
                 for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
                 sb::exec("chroot /mnt " % ugrubcmd());
                 if(intrrpt) return exit();
-                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("chroot /mnt grub-install --force " % (grub.isEFI ? nullptr : ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()))) dialog = ui->fullrepair->isChecked() ? 310 : 304;
+                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("chroot /mnt grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText())))) 
+                    dialog = ui->fullrepair->isChecked() ? 310 : 304;
                 mlst.move(0, 1);
                 for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
                 if(intrrpt) return exit();
@@ -2233,7 +2235,7 @@ void systemback::systemcopy()
             QStr nuname(ui->username->text());
 
             std::cout << "Checking if username is valid" << std::endl;
-            if(sb::exec("grep -Fxq " % nuname % " \"/usr/share/systemback/reserved_usernames\"")) return err();
+            if(sb::exec("bash -c \"! grep -Fxq " % nuname % " /usr/share/systemback/reserved_usernames && exit 0 || exit 1\"")) nuname.append('_' % sb::rndstr());
 
             if(guname() != nuname)
             {
@@ -2570,27 +2572,30 @@ void systemback::systemcopy()
         if(! sb::crtfile("/.sbsystemcopy/etc/fstab", fstabtxt)) return err();
     }
 
-    {
-        QStr cfpath(ppipe ? QStr(sb::sdir[1] % '/' % cpoint % '_' % pname % "/etc/crypttab") : "/etc/crypttab");
+    // {
+    //     QStr cfpath(ppipe ? QStr(sb::sdir[1] % '/' % cpoint % '_' % pname % "/etc/crypttab") : "/etc/crypttab");
 
-        if(sb::isfile(cfpath))
-        {
-            QFile file(cfpath);
-            if(! sb::fopen(file)) return err();
+    //     if(sb::isfile(cfpath))
+    //     {
+    //         QFile file(cfpath);
+    //         if(! sb::fopen(file)) return err();
 
-            while(! file.atEnd())
-            {
-                QBA cline(file.readLine().trimmed());
+    //         while(! file.atEnd())
+    //         {
+    //             QBA cline(file.readLine().trimmed());
 
-                if(! cline.startsWith('#') && cline.contains("UUID="))
-                {
-                    if (intrrpt || !sb::crtfile("/.sbsystemcopy/etc/mtab") || sb::exec("chroot /.sbsystemcopy mkinitcpio -S autodetect -P"))
-                        return err();
-                    break;
-                }
-            }
-        }
-    }
+    //             if(! cline.startsWith('#') && cline.contains("UUID="))
+    //             {
+    //                 if (intrrpt || !sb::crtfile("/.sbsystemcopy/etc/mtab") || sb::exec("chroot /.sbsystemcopy mkinitcpio -P"))
+    //                     return err();
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+
+    sb::crtdir("/.sbsystemcopy/boot");
+    sb::crtfile("/.sbsystemcopy/copykernel.sh", "#!/bin/bash\nfor k in /etc/mkinitcpio.d/*.preset; do\na=${k:18:${#k}-25}\nb=$(pacman -Ql $a 2>/dev/null | grep 'vmlinuz' | awk '{print $2}')\nc=$(dirname $k)\n[ -f $c/kernelbase ] && a=$(cat $c/kernelbase)\ncp $b /boot/vmlinuz-$a\ndone\nmkinitcpio -P\nsed -i 's/GRUB_DISABLE_OS_PROBER/#GRUB_DISABLE_OS_PROBER/g' /etc/default/grub");
 
     if(ui->grubinstallcopy->isVisibleTo(ui->copypanel))
     {
@@ -2598,9 +2603,17 @@ void systemback::systemcopy()
         { QSL mlst{"dev", "dev/pts", "proc", "sys"};
         for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/.sbsystemcopy/" % bpath); }
 
+        if (intrrpt ||
+            !sb::crtfile("/.sbsystemcopy/etc/mtab") ||
+            !cfmod("/.sbsystemcopy/copykernel.sh", 0755) ||
+            sb::exec("chroot /.sbsystemcopy /copykernel.sh"))
+            return err();
+            
+        sb::remove("/.sbsystemcopy/copykernel.sh");
+
         if(ui->grubinstallcopy->currentText() == tr("Disabled"))
             sb::exec("chroot /.sbsystemcopy " % ugrubcmd());
-        else if(sb::exec("chroot /.sbsystemcopy sh -c \"" % ugrubcmd() % " ; grub-install --force " % (grub.isEFI ? nullptr : ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText()) % '\"'))
+        else if (sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
             return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 308 : 315);
     }
 
@@ -7530,8 +7543,8 @@ void systemback::on_livenew_clicked()
 
         for (cQStr &item : {"/.sblvtmp/boot", "/.sblvtmp/cdrom", "/.sblvtmp/dev", "/.sblvtmp/mnt", "/.sblvtmp/proc", "/.sblvtmp/run", "/.sblvtmp/srv", "/.sblvtmp/sys", "/.sblvtmp/tmp", "/bin", "/etc", "/lib", "/lib32", "/lib64", "/opt", "/sbin", "/selinux", "/snap/.sblvtmp/snap", "/usr"}) 
             if (sb::exist(item)) ide.append(' ' % item);
-        if(sb::exist("/boot/vmlinuz-" % kname)) ide.append(" /boot/vmlinuz-" % kname);
-        ide.append(" " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img");
+        // if(sb::exist("/boot/vmlinuz-" % kname)) ide.append(" /boot/vmlinuz-" % kname);
+        // ide.append(" " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img");
 
         if (sb::isdir(sb::sdir[2] % "/.sblivesystemcreate/userdata"))
         {

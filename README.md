@@ -12,20 +12,16 @@ Systemback makes it easy to create backups of the system and the users configura
 
 ## Install
 
-### Within Debian (-based)
-
-* It can be built using pure debian (-based, with [debhelper](https://aur.archlinux.org/packages/debhelper)) then convert to arch package with `debtap`
-
 ### With AUR helper
 
 ```bash
 pacman-key --recv-key 50B2C005A67B264F --keyserver 'hkp://keyserver.ubuntu.com:80'
-yay -S systemback-bin # works with `paru` or any other aur helper
+yay -S systemback # works with `paru` or any other aur helper
 ```
 
 ### Prebuilt binaries
 
-* Prebuilt binaries are available at [yuunix_aur](https://github.com/shadichy/yuunix_aur)
+* Prebuilt binaries are available at [Yuunix AUR](https://github.com/shadichy/yuunix_aur) for both 32bit and 64bit x86 architecture
 
 add this to your `/etc/pacman.conf` with npacman or the ATT.
 
@@ -56,7 +52,7 @@ makepkg # will work if u resolved all deps
 
 ```bash
 cd systemback/
-dpkg-buildpackage # or debuild
+dpkg-buildpackage # or debuild (on debian)
 cd ../
 debtap <package>.deb
 ```
@@ -66,7 +62,7 @@ Images of Systemback
 
 ## Note
 
-> Build successful, installable, but unable to run yet
+> Build successful, installable, but some features may not work
 
 ## Jobs to to
 
@@ -77,6 +73,7 @@ Arch support is still WIP:
 * ~~Move `initramfs-tools` to `mkinitcpio`~~ (Done)
 * ~~Add support for `overlayfs`, replacing `unionfs`~~ (Done)
 * Fix issues
+* Fetch updates from upstream
 * request upstream push :)
 
 ## Changelog
