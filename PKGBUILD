@@ -97,6 +97,11 @@ if test "x\`id -u\`" != "x0"; then
 fi
 
 \$BASE_CMD
+
+[ -f /var/lib/pacman/db.lck ] && rm /var/lib/pacman/db.lck
+[ -f /run/systemback.lock ] && rm /run/systemback.lock
+[ -f /run/sbscheduler.lock ] && rm /run/sbscheduler.lock
+
 EOF
     chmod +755 "${pkgdir}/usr/bin/sbsustart"
     mkdir -p "${pkgdir}/usr/share/polkit-1/actions/"
@@ -158,6 +163,11 @@ if test "x\`id -u\`" != "x0"; then
 fi
 
 \$BASE_CMD
+
+[ -f /var/lib/pacman/db.lck ] && rm /var/lib/pacman/db.lck
+[ -f /run/systemback.lock ] && rm /run/systemback.lock
+[ -f /run/sbscheduler.lock ] && rm /run/sbscheduler.lock
+
 EOF
     chmod +755 "${pkgdir}/usr/bin/systemback"
     cp "../${pkgbase}/reserved_usernames" "${pkgdir}/usr/share/systemback/reserved_usernames"

@@ -1042,61 +1042,64 @@ void sb::supgrade()
 
     forever
     {
-        if (!exec({"bash -c \"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed", "pacman -Qtdq | pacman -Rns --noconfirm - \""}))
-        {
-            QStr rklist;
+        if (!exec({"bash -c \"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed --noconfirm", "pacman -Qtdq | pacman -Rns --noconfirm - \""}))
+        // {
+        //     QStr rklist;
 
-            {
-                QSL dlst(QDir("/boot").entryList(QDir::Files, QDir::Reversed));
+        //     {
+        //         QSL dlst(QDir("/boot").entryList(QDir::Files, QDir::Reversed));
 
-                for(cQStr &item : dlst)
-                    if(item.startsWith("vmlinuz-"))
-                    {
-                        QStr vmlinuz(right(item, -8)), kernel(left(vmlinuz, instr(vmlinuz, "-") - 1)), kver(mid(vmlinuz, kernel.length() + 2, instr(vmlinuz, "-", kernel.length() + 2) - kernel.length() - 2));
+        //         for(cQStr &item : dlst)
+        //             if(item.startsWith("vmlinuz-"))
+        //             {
+        //                 QStr vmlinuz(right(item, -8)), 
+        //                     kernel(left(vmlinuz, instr(vmlinuz, "-") - 1)), 
+        //                     kver(mid(vmlinuz, kernel.length() + 2, instr(vmlinuz, "-", kernel.length() + 2) - kernel.length() - 2));
 
-                        if(isnum(kver) && vmlinuz.startsWith(kernel % '-' % kver % '-') && ! rklist.contains(kernel % '-' % kver % "-*"))
-                        {
-                            for(ushort a(1) ; a < 101 ; ++a)
-                            {
-                                QStr subk(kernel % '-' % QStr::number(kver.toUShort() - a));
+        //                 if(isnum(kver) && vmlinuz.startsWith(kernel % '-' % kver % '-') && ! rklist.contains(kernel % '-' % kver % "-*"))
+        //                 {
+        //                     for(ushort a(1) ; a < 101 ; ++a)
+        //                     {
+        //                         QStr subk(kernel % '-' % QStr::number(kver.toUShort() - a));
 
-                                for(cQStr &ritem : dlst)
-                                    if(ritem.startsWith("vmlinuz-" % subk % '-') && ! rklist.contains(' ' % subk % "-*")) rklist.append(' ' % subk % "-*");
-                            }
-                        }
-                    }
-            }
+        //                         for(cQStr &ritem : dlst)
+        //                             if(ritem.startsWith("vmlinuz-" % subk % '-') && ! rklist.contains(' ' % subk % "-*")) rklist.append(' ' % subk % "-*");
+        //                     }
+        //                 }
+        //             }
+        //     }
 
-            uchar cproc(rklist.isEmpty() ? 0 : exec("pacman -Rc " % rklist));
+        //     uchar cproc(rklist.isEmpty() ? 0 : exec("pacman -Rc --noconfirm " % rklist));
 
-            if(like(cproc, {0, 1}))
-            {
-                exec({"pacman -Qqen | grep '^rc' |pacman -Rc -", "pacman -Scc --noconfirm"});
+        //     if(like(cproc, {0, 1}))
+        //     {
+        //         exec({"pacman -Qqen | grep '^rc' | pacman -Rc --noconfirm -", "pacman -Scc --noconfirm"});
 
-                {
-                    QSL dlst(QDir("/var/cache/pacman").entryList(QDir::Files));
+        //         {
+        //             QSL dlst(QDir("/var/cache/pacman").entryList(QDir::Files));
 
-                    for(uchar a(0) ; a < dlst.count() ; ++a)
-                    {
-                        cQStr &item(dlst.at(a));
-                        if(item.contains(".bin.")) rmfile("/var/cache/pacman/" % item);
-                    }
-                }
+        //             for(uchar a(0) ; a < dlst.count() ; ++a)
+        //             {
+        //                 cQStr &item(dlst.at(a));
+        //                 if(item.contains(".bin.")) rmfile("/var/cache/pacman/" % item);
+        //             }
+        //         }
 
-                for(cQStr &item : QDir("/lib/modules").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot))
-                    if(! exist("/boot/vmlinuz-" % item)) QDir("/lib/modules/" % item).removeRecursively();
+        //         for(cQStr &item : QDir("/lib/modules").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot))
+        //             if(! exist("/boot/vmlinuz-" % item)) QDir("/lib/modules/" % item).removeRecursively();
 
                 break;
-            }
-        }
+        //     }
+        // }
         // else
         //     exec("dpkg --configure -a");
 
         exec({"tput reset", "tput civis"});
 
-        for(uchar a(3) ; a ; --a) error("\n " % tr("An error occurred while upgrading the system!") % '\n'),
-                                  print("\n " % tr("Restart upgrade ...") % ' ' % QStr::number(a)),
-                                  sleep(1), exec("tput cup 0 0");
+        for(uchar a(3) ; a ; --a) 
+            error("\n " % tr("An error occurred while upgrading the system!") % '\n'),
+            print("\n " % tr("Restart upgrade ...") % ' ' % QStr::number(a)),
+            sleep(1), exec("tput cup 0 0");
 
         exec("tput reset");
     }
@@ -2575,9 +2578,10 @@ bool sb::thrdsrestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool s
         if(! like(mthd, {4, 6}))
         {
             if(isdir(srcdir % "/home"))
-                for(cQStr &cusr : QDir(srcdir % "/home").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot)) usrs.append(cusr),
-                                                                                                                          homeitms.append(nullptr),
-                                                                                                                          homeitmst.append(QUCL());
+                for(cQStr &cusr : QDir(srcdir % "/home").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot)) 
+                    usrs.append(cusr),
+                    homeitms.append(nullptr),
+                    homeitmst.append(QUCL());
 
             usrs.append(isdir(srcdir % "/root") ? "" : nullptr);
         }

@@ -580,6 +580,9 @@ systemback::~systemback()
         }
     }
 
+    if(!(sb::exist("/media") && !sb::islink("/media") && sb::remove("/media")) || !(sb::islink("/media") || !sb::exec("ln -s /run/media /media")))
+        sb::print("\n" % tr("An error occurred while trying to create symlink /media") % "\n");
+
     for(QTimer *tmr : {shdltimer, dlgtimer, intrptimer})
         if(tmr) delete tmr;
 
@@ -2234,7 +2237,6 @@ void systemback::systemcopy()
         {
             QStr nuname(ui->username->text());
 
-            std::cout << "Checking if username is valid" << std::endl;
             if(sb::exec("bash -c \"! grep -Fxq " % nuname % " /usr/share/systemback/reserved_usernames && exit 0 || exit 1\"")) nuname.append('_' % sb::rndstr());
 
             if(guname() != nuname)
@@ -2648,12 +2650,7 @@ void systemback::systemcopy()
 QStr systemback::rkernel()
 {
     QStr kdir("/usr/lib/modules/" % ckname());
-    QStr kname;
-    if (sb::isfile(kdir % "/kernelbase"))
-        kname = sb::execSTDOUT(" bash -c \"cat " % kdir % "/kernelbase | tr -d '\\n' \"\"");
-    else 
-        kname = sb::execSTDOUT("bash -c \"pacman -Qo " % kdir % "/vmlinuz | awk '{print $5}' | tr -d '\\n' \"");
-    return kname;
+    return (sb::isfile(kdir % "/kernelbase") ? sb::execSTDOUT(" bash -c \"cat " % kdir % "/kernelbase | tr -d '\\n' \"\"") : sb::execSTDOUT("bash -c \"pacman -Qo " % kdir % "/vmlinuz | awk '{print $5}' | tr -d '\\n' \""));
 }
 
 void systemback::livewrite()

@@ -76,7 +76,7 @@ public:
     static fnln ullong fsize(cQStr &path);
 
     static fnln ushort instr(cQStr &txt, cQStr &stxt, ushort start = 1),
-                       rinstr(cQStr &txt, cQStr &stxt);
+                        rinstr(cQStr &txt, cQStr &stxt);
 
     template<typename T> static uchar stype(const T &path, bool flink = false);
 
@@ -92,8 +92,8 @@ public:
     template<typename T> static bool exist(const T &path);
 
     static fnln bool islink(cQStr &path),
-                     isfile(cQStr &path),
-                     isdir(cQStr &path);
+                    isfile(cQStr &path),
+                    isdir(cQStr &path);
 
     static bool srestore(uchar mthd, cQStr &usr, cQStr &srcdir, cQStr &trgt, bool sfstab = false),
                 mkpart(cQStr &dev, ullong start = 0, ullong len = 0, uchar type = Primary),
