@@ -153,7 +153,7 @@ if test "x\`id -u\`" != "x0"; then
         fi
     fi
 
-    pkexec --disable-internal-agent '/usr/bin/systemback' "\$@"
+    pkexec --disable-internal-agent '/usr/bin/sbsustart' systemback "\$@"
     status=\$?
 
     if test "x\$GRANTED_XHOST_ROOT" = 'xyes'; then

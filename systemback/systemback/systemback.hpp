@@ -62,6 +62,7 @@ private:
 
     struct {
         QStr name;
+        QStr arch;
         bool isEFI;
     } grub;
 

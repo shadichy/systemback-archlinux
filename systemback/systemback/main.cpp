@@ -26,6 +26,9 @@ int main(int argc, char *argv[])
     sb::ldtltr();
 
     uchar rv([&a] {
+
+        if((sb::exist("/media") && !sb::islink("/media") && !sb::remove("/media")) || (!sb::islink("/media") && sb::exec("ln -s /run/media /media")))
+            sb::print("\nAn error occurred while trying to create symlink /media\n");
             // if(qgetenv("XAUTHORITY").startsWith("/home/") && ! getuid())
             // {    
             //     sb::error("\n " % sb::tr("Unsafe X Window authorization!") % "\n\n " % sb::tr("Please do not run systemback as pure root.") % "\n\n");

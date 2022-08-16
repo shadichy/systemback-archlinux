@@ -580,9 +580,6 @@ systemback::~systemback()
         }
     }
 
-    if(!(sb::exist("/media") && !sb::islink("/media") && sb::remove("/media")) || !(sb::islink("/media") || !sb::exec("ln -s /run/media /media")))
-        sb::print("\n" % tr("An error occurred while trying to create symlink /media") % "\n");
-
     for(QTimer *tmr : {shdltimer, dlgtimer, intrptimer})
         if(tmr) delete tmr;
 
@@ -856,7 +853,7 @@ void systemback::unitimer()
 
                 goto noefi;
             isefi:
-                grub.name = "", grub.isEFI = true,
+                grub.name = "", grub.arch = (sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "64" ? "x86_64" : "i386"), grub.isEFI = true,
                 ui->repairmountpoint->addItem("/mnt/boot/efi"),
                 ui->grubinstallcopy->hide();
                 for(QCbB cmbx : QCbBL{ui->grubinstallcopy, ui->grubreinstallrestore, ui->grubreinstallrepair}) cmbx->addItems({"EFI", tr("Disabled")});
@@ -867,7 +864,7 @@ void systemback::unitimer()
                 goto next_1;
             noefi:
 #endif
-                grub.name = "-legacy", grub.isEFI = false;
+                grub.name = "-legacy", grub.arch = "i386", grub.isEFI = false;
                 for(QWdt wdgt : QWL{ui->grubinstallcopydisable, ui->efiwarning}) wdgt->hide();
 #ifdef __amd64__
             next_1:
@@ -1233,7 +1230,7 @@ QStr systemback::guname()
 
             if(sb::fopen(file))
             {
-                QSL incl{"*:x:1000:10*", "*:x:1001:10*", "*:x:1002:10*", "*:x:1003:10*", "*:x:1004:10*", "*:x:1005:10*", "*:x:1006:10*", "*:x:1007:10*", "*:x:1008:10*", "*:x:1009:10*", "*:x:1010:10*", "*:x:1011:10*", "*:x:1012:10*", "*:x:1013:10*", "*:x:1014:10*", "*:x:1015:10*"};
+                QSL incl{"*:x:1000:*", "*:x:1001:*", "*:x:1002:*", "*:x:1003:*", "*:x:1004:*", "*:x:1005:*", "*:x:1006:*", "*:x:1007:*", "*:x:1008:*", "*:x:1009:*", "*:x:1010:*", "*:x:1011:*", "*:x:1012:*", "*:x:1013:*", "*:x:1014:*", "*:x:1015:*"};
 
                 while(! file.atEnd())
                 {
@@ -1904,7 +1901,7 @@ void systemback::restore()
 
                 if(fcmp < 2 || ! (ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto"))
                 {
-                    if(sb::exec("grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto" ? sb::gdetect() : ui->grubreinstallrestore->currentText()))) 
+                    if(sb::exec("grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->autorestoreoptions->isChecked() || ui->grubreinstallrestore->currentText() == "Auto" ? sb::gdetect() : ui->grubreinstallrestore->currentText()))) 
                         dialog = 309;
                     if(intrrpt) return exit();
                 }
@@ -1942,7 +1939,7 @@ void systemback::repair()
     {
         QSL mlst{"dev", "dev/pts", "proc", "sys"};
         for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
-        dialog = sb::exec("chroot /mnt bash -c \"grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % ";" % ugrubcmd() % "\"") ? 318 : 208,
+        dialog = sb::exec("chroot /mnt bash -c \"grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % ";" % ugrubcmd() % "\"") ? 318 : 208,
         mlst.move(0, 1);
         for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
         if(intrrpt) return exit();
@@ -1994,7 +1991,7 @@ void systemback::repair()
                 for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
                 sb::exec("chroot /mnt " % ugrubcmd());
                 if(intrrpt) return exit();
-                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("chroot /mnt grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText())))) 
+                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("chroot /mnt grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText())))) 
                     dialog = ui->fullrepair->isChecked() ? 310 : 304;
                 mlst.move(0, 1);
                 for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
@@ -2615,7 +2612,7 @@ void systemback::systemcopy()
 
         if(ui->grubinstallcopy->currentText() == tr("Disabled"))
             sb::exec("chroot /.sbsystemcopy " % ugrubcmd());
-        else if (sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % (grub.isEFI ? QStr("x86_64-efi ") : QStr("i386-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
+        else if (sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
             return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 308 : 315);
     }
 
