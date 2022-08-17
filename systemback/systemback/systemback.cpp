@@ -7564,19 +7564,19 @@ void systemback::on_livenew_clicked()
         if(intrrpt) return err();
         pset(18, " 2/3");
 
-        for(cQStr &excl : {"/etc/fstab", "/etc/mtab", "/etc/udev/rules.d/70-persistent-cd.rules", "/etc/udev/rules.d/70-persistent-net.rules"})
+        for(cQStr &excl : {"/etc/fstab", "/etc/mtab", "/etc/udev/rules.d/70-persistent-cd.rules", "/etc/udev/rules.d/70-persistent-net.rules", "/var/lib/libvirt/images"})
             if(sb::exist(excl)) elist.append(" -e " % excl);
 
-        for(cQStr &cdir : {"/etc/rc0.d", "/etc/rc1.d", "/etc/rc2.d", "/etc/rc3.d", "/etc/rc4.d", "/etc/rc5.d", "/etc/rc6.d", "/etc/rcS.d"})
+        for(cQStr &cdir : {"/etc/rc0.d", "/etc/rc1.d", "/etc/rc2.d", "/etc/rc3.d", "/etc/rc4.d", "/etc/rc5.d", "/etc/rc6.d", "/etc/rcS.d", "/var/cache", "/var/log", "/var/tmp", "/var/lib/pacman/sync", "/var/lib/systemd/coredump"})
             if(sb::isdir(cdir))
                 for(cQStr &item : QDir(cdir).entryList(QDir::Files))
                     if(item.contains("cryptdisks")) elist.append(" -e " % cdir % '/' % item);
-        sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/cache/*\"");
-        sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/log/*\"");
-        sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/tmp/*\"");
-        sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/lib/pacman/sync/*\"");
-        sb::exec("bash -c \"rm -rf /var/.sblvtmp/var/lib/systemd/coredump/*\"");
+
+        sb::unlock(sb::Alpmlock);
+        sb::unlock(sb::Sblock);
         if(sb::exec("mksquashfs" % ide % " \"" % sb::sdir[2] % "\"/.sblivesystemcreate/.systemback /media/.sblvtmp/media /var/.sblvtmp/var \"" % sb::sdir[2] % "\"/.sblivesystemcreate/live/airootfs.sfs " % (sb::xzcmpr ? "-comp xz " : "-comp zstd ") % " -info -b 1M -no-duplicates -no-recovery -always-use-fragments " % elist, sb::Prgrss)) return err(311);
+        sb::lock(sb::Alpmlock);
+        sb::lock(sb::Sblock);
     }
 
     pset(19, " 3/3"),

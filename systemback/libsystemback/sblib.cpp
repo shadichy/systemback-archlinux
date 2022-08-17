@@ -1042,7 +1042,7 @@ void sb::supgrade()
 
     forever
     {
-        if (!exec({"bash -c \"pacman -Qk 2>/dev/null | grep -v ' 0 missing files' | cut -d: -f1 | pacman -Sdd --noconfirm --overwrite '*' -", "pacman -Syu --needed --noconfirm", "pacman -Qtdq | pacman -Rns --noconfirm - \""}))
+        if (!exec({"bash -c \"pacman -Qtdq | pacman -Rns --noconfirm - \"", "bash -c \"pacman -Qentk 2>&1 | grep 'warning' | grep -Ev ' 0|doc|man' | cut -d: -f2 | xargs -n1 | sort -u | pacman -Sdd --noconfirm --overwrite '*' - \""})) break;
         // {
         //     QStr rklist;
 
@@ -1088,7 +1088,7 @@ void sb::supgrade()
         //         for(cQStr &item : QDir("/lib/modules").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot))
         //             if(! exist("/boot/vmlinuz-" % item)) QDir("/lib/modules/" % item).removeRecursively();
 
-                break;
+        //         break;
         //     }
         // }
         // else
