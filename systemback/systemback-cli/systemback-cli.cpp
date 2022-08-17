@@ -529,7 +529,7 @@ uchar systemback::restore()
     progress(Start);
     bool sfstab(fsave == 1);
     sb::srestore(mthd, nullptr, sb::sdir[1] % '/' % cpoint % '_' % pname, nullptr, sfstab);
-    { bool err(greinst == 1 && sb::exec("sh -c \"update-grub ; grub-install --force " % sb::gdetect() % '\"', sb::Silent));
+    { bool err(greinst == 1 && sb::exec("sh -c \"grub-mkconfig -o /boot/grub/grub.cfg ; grub-install --force " % sb::gdetect() % '\"', sb::Silent));
     progress(Stop);
     if(err) return 11; }
     clear(),

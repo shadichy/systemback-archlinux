@@ -1,1 +1,2 @@
 libsystemback/libsystemback.so* usr/lib/systemback
+libsystemback/scripts/* usr/share/systemback/scripts

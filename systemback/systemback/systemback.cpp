@@ -864,7 +864,7 @@ void systemback::unitimer()
                 goto next_1;
             noefi:
 #endif
-                grub.name = "-legacy", grub.arch = "i386", grub.isEFI = false;
+                grub.name = "-legacy", grub.arch = "i386", grub.isEFI = (sb::isdir("/sys/firmware/efi") && sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "32");
                 for(QWdt wdgt : QWL{ui->grubinstallcopydisable, ui->efiwarning}) wdgt->hide();
 #ifdef __amd64__
             next_1:
@@ -928,7 +928,7 @@ void systemback::unitimer()
                                     }
                                 }
 
-                            return sb::exec("bash -c 'lsmod | grep \"overlay\"'") ? true : false;
+                            return sb::exec("bash -c \"lsmod | grep 'overlay'\"") ? true : false;
                         }();
 
                     for(QWdt wdgt : QWL{ui->copymenu, ui->installmenu, ui->systemupgrade, ui->excludemenu, ui->includemenu, ui->schedulemenu}) wdgt->setEnabled(true);

@@ -1042,7 +1042,8 @@ void sb::supgrade()
 
     forever
     {
-        if (!exec({"bash -c \"pacman -Qtdq | pacman -Rns --noconfirm - \"", "bash -c \"pacman -Qentk 2>&1 | grep 'warning' | grep -Ev ' 0|doc|man' | cut -d: -f2 | xargs -n1 | sort -u | pacman -Sdd --noconfirm --overwrite '*' - \""})) break;
+        if(!exec("/usr/share/systemback/scripts/upgrade.sh")) break;
+
         // {
         //     QStr rklist;
 
