@@ -2018,6 +2018,7 @@ void systemback::systemcopy()
     // stop serivces
     // sb::exec("systemctl stop mongod");
     statustart(), pset(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 8 : 9);
+    sb::print("Warning:" % tr("All data from newly selected partitions will be overwritten during system copy process.") % '\n');
 
     auto err([this](ushort dlg = 0, cbstr &dev = nullptr) {
             if(! (intrrpt || (dlg && sb::like(dlg, {308, 314, 315, 317, 330, 331, 332, 333})))) dlg = [this] {
@@ -2060,6 +2061,8 @@ void systemback::systemcopy()
             }
         });
 
+    QStr efipart;
+
     if(! (sb::isdir("/.sbsystemcopy") || sb::crtdir("/.sbsystemcopy"))) return err();
 
     {
@@ -2080,12 +2083,17 @@ void systemback::systemcopy()
 
         for(cQStr &vals : msort)
         {
+            sb::print(vals);
             QSL cval(vals.split('\n'));
-            cQStr &mpoint(cval.at(0)), &fstype(cval.at(1)), &part(cval.at(2));
+            cQStr &mpoint(cval.at(0)), 
+                &fstype(cval.at(1)), 
+                &part(cval.at(2));
             if(! ckd.contains(part) && sb::mcheck(part) && (! (grub.isEFI && mpoint == "/boot/efi") || fstype.length() > 2)) sb::umount(part);
             if(intrrpt) return err();
             sb::fssync();
             if(intrrpt) return err();
+
+            if(grub.isEFI && mpoint == "/boot/efi") efipart = part;
 
             if(fstype.length() > 2)
             {
@@ -2096,7 +2104,7 @@ void systemback::systemcopy()
                     fstype == "jfs" ? sb::exec("mkfs.jfs -qL " % lbl % ' ' % part) :
                     fstype == "reiserfs" ? sb::exec("mkfs.reiserfs -ql " % lbl % ' ' % part) :
                     fstype == "xfs" ? sb::exec("mkfs.xfs -fL " % lbl % ' ' % part) :
-                    fstype == "vfat" ? sb::setpflag(part, "boot") ? ui->format->isEnabled() ? sb::exec("mkfs.vfat -F 32 -n " % lbl.toUpper() % ' ' % part) : 0 : 255 :
+                    fstype == "vfat" ? sb::setpflag(part, "boot") ? sb::exec("mkfs.vfat -F 32 -n " % lbl.toUpper() % ' ' % part) : 255 :
                     fstype == "btrfs" ? (ckd.contains(part) ? 0 : sb::exec("mkfs.btrfs -fL " % lbl % ' ' % part)) ? sb::exec("mkfs.btrfs -L " % lbl % ' ' % part) : 0 :
                     sb::exec("mkfs." % fstype % " -FL " % lbl % ' ' % part));
 
@@ -2154,7 +2162,7 @@ void systemback::systemcopy()
                                 return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 314 : 330, part);
                         }
                 }
-                else if(! sb::mount(part, "/.sbsystemcopy" % mpoint))
+                else if (!(mpoint != "/boot/efi" ? sb::mount(part, "/.sbsystemcopy" % mpoint) : true))
                     return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 314 : 330, part);
             }
 
@@ -2611,8 +2619,8 @@ void systemback::systemcopy()
         sb::remove("/.sbsystemcopy/copykernel.sh");
 
         if(ui->grubinstallcopy->currentText() == tr("Disabled"))
-            sb::exec("chroot /.sbsystemcopy " % ugrubcmd());
-        else if (sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
+            sb::exec("chroot /.sbsystemcopy mkdir -p /boot/grub ; " % ugrubcmd());
+        else if(!grub.isEFI || !sb::mount(efipart, "/.sbsystemcopy/boot/efi") || sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % grub.arch % (grub.isEFI ? QStr("-efi ") : QStr("-pc ")) % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
             return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 308 : 315);
     }
 
