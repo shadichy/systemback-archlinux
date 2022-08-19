@@ -2,7 +2,7 @@
 pkgbase=systemback
 pkgname=("lib${pkgbase}" "${pkgbase}-cli" "${pkgbase}-efiboot-amd64" "${pkgbase}-locales" "${pkgbase}-scheduler" "${pkgbase}")
 pkgver=1.8.9
-pkgrel=2
+pkgrel=3
 pkgdesc='Simple system backup and restore application with extra features'
 arch=(any)
 march=""

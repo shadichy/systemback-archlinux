@@ -10,6 +10,16 @@ clear_cache() {
     echo "Cache cleared!"
 }
 
+update_repo() {
+    echo "Updating repositories..."
+    pacman -Sy
+    if [ $? -ne 0 ]; then
+        echo "Error: failed to update repository!"
+        exit 1
+    fi
+    echo "Repositories are up to date!"
+}
+
 remove_orphans() {
     echo 'Removing orphan (unneeded) packages'
     unneeded_packages=$(pacman -Qtdq)
@@ -21,6 +31,16 @@ remove_orphans() {
         fi
     fi
     echo "Clean!"
+}
+
+upgrade_packages() {
+    echo "Upgrading packages..."
+    pacman -Su --noconfirm
+    if [ $? -ne 0 ]; then
+        echo "Error: failed to upgrade packages!"
+        exit 1
+    fi
+    echo "All packages are up to date!"
 }
 
 fix_broken() {
@@ -36,9 +56,11 @@ fix_broken() {
     echo "All packages are good!"
 }
 
-clear_cache 0
-remove_orphans
-fix_broken
-clear_cache 1
+clear_cache 0 
+update_repo || exit 1
+remove_orphans || exit 1
+upgrade_packages || exit 1
+fix_broken || exit 1
+clear_cache 1 
 
 exit 0

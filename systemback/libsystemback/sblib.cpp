@@ -1038,11 +1038,27 @@ void sb::pupgrade()
 
 void sb::supgrade()
 {
-    exec("pacman -Syyu --noconfirm");
+    if (exec("ping -c 1 -w 1 archlinux.org")) 
+    {
+        print("Error:" % tr("No internet connection!") % '\n');
+        return;
+    }
 
     forever
     {
-        if(!exec("/usr/share/systemback/scripts/upgrade.sh")) break;
+        if(!exec("/usr/share/systemback/scripts/upgrade.sh")) 
+        {
+            bool rerun_mkinitcpio(false);
+            for(cQStr &mdir : QDir("/usr/lib/modules").entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot))
+                if(exist(mdir % "/vmlinuz")) 
+                    if(exec("pacman -Qo " % mdir % "/vmlinuz"))
+                        remove(mdir),
+                        rerun_mkinitcpio = true;
+
+            if(rerun_mkinitcpio) exec("mkinitcpio -P");
+
+            break;
+        }
 
         // {
         //     QStr rklist;
