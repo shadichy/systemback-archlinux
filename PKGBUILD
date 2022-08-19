@@ -46,7 +46,7 @@ package_systemback-cli() {
 }
 package_systemback-efiboot-amd64() {
     pkgdesc='Systemback EFI bootloader support'
-    depends=('syslinux' 'libsystemback')
+    depends=('syslinux' 'libsystemback' 'grub')
     optdepends=('grub' 'systemback')
     dpkg-deb -xv "../${pkgbase}-efiboot-amd64_${pkgver}_all.deb" "${pkgdir}"
     install -dm755 "${pkgdir}/usr"
@@ -128,7 +128,7 @@ EOF
     install -dm755 "${pkgdir}/usr"
 }
 package_systemback() {
-    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' 'grub' 'mtools')
+    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' 'grub' 'mtools' 'arch-install-scripts')
     optdepends+=('kdialog' 'amd-ucode' 'intel-ucode')
     dpkg-deb -xv "../${pkgbase}_${pkgver}_${march}.deb" "${pkgdir}"
     cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"

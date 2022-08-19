@@ -861,7 +861,7 @@ void systemback::unitimer()
 
                 goto noefi;
             isefi:
-                grub.name = "-efi", grub.arch = (sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "64" ? "x86_64" : "i386"), grub.isEFI = true,
+                grub.name = "-efi ", grub.arch = (sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "64" ? "x86_64" : "i386"), grub.isEFI = true,
                 ui->repairmountpoint->addItem("/mnt/boot/efi"),
                 ui->grubinstallcopy->hide();
                 for(QCbB cmbx : QCbBL{ui->grubinstallcopy, ui->grubreinstallrestore, ui->grubreinstallrepair}) cmbx->addItems({"EFI", tr("Disabled")});
@@ -871,7 +871,7 @@ void systemback::unitimer()
                 ui->efiwarning->setForegroundRole(QPalette::Highlight);
                 goto next_1;
             noefi:
-                grub.name = "-pc", grub.arch = "i386", grub.isEFI = false;
+                grub.name = "-pc ", grub.arch = "i386", grub.isEFI = false;
                 for(QWdt wdgt : QWL{ui->grubinstallcopydisable, ui->efiwarning}) wdgt->hide();
             next_1:
                 ui->repairmountpoint->addItems({"/mnt/usr", "/mnt/var", "/mnt/opt", "/mnt/usr/local"}),
@@ -933,7 +933,7 @@ void systemback::unitimer()
                                     }
                                 }
 
-                            return !sb::exec("bash -c \"lsmod | grep 'overlay'\"");
+                            return !sb::exec("sh -c \"lsmod | grep 'overlay'\"");
                         }();
 
                     for(QWdt wdgt : QWL{ui->copymenu, ui->installmenu, ui->systemupgrade, ui->excludemenu, ui->includemenu, ui->schedulemenu}) wdgt->setEnabled(true);
@@ -1942,11 +1942,11 @@ void systemback::repair()
 
     if(! mthd)
     {
-        QSL mlst{"dev", "dev/pts", "proc", "sys"};
-        for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
-        dialog = sb::exec("chroot /mnt bash -c \"grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % ";" % ugrubcmd() % "\"") ? 318 : 208,
-        mlst.move(0, 1);
-        for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
+        // QSL mlst{"dev", "dev/pts", "proc", "sys"};
+        // for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
+        dialog = sb::exec("arch-chroot /mnt sh -c \"grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText()) % ";" % ugrubcmd() % "\"") ? 318 : 208;
+        // mlst.move(0, 1);
+        // for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
         if(intrrpt) return exit();
     }
     else
@@ -1992,14 +1992,14 @@ void systemback::repair()
         {
             if(ui->grubreinstallrepair->isVisibleTo(ui->repairpanel) && ! (ui->grubreinstallrepair->isEnabled() && ui->grubreinstallrepair->currentText() == tr("Disabled")))
             {
-                QSL mlst{"dev", "dev/pts", "proc", "sys"};
-                for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
-                sb::exec("chroot /mnt " % ugrubcmd());
+                // QSL mlst{"dev", "dev/pts", "proc", "sys"};
+                // for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/mnt/" % bpath);
+                sb::exec("arch-chroot /mnt " % ugrubcmd());
                 if(intrrpt) return exit();
-                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("chroot /mnt grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText())))) 
+                if((fcmp < 2 || ! (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto")) && sb::exec("arch-chroot /mnt grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->autorepairoptions->isChecked() || ui->grubreinstallrepair->currentText() == "Auto" ? sb::gdetect("/mnt") : ui->grubreinstallrepair->currentText())))) 
                     dialog = ui->fullrepair->isChecked() ? 310 : 304;
-                mlst.move(0, 1);
-                for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
+                // mlst.move(0, 1);
+                // for(cQStr &pend : mlst) sb::umount("/mnt/" % pend);
                 if(intrrpt) return exit();
             }
 
@@ -2239,7 +2239,7 @@ void systemback::systemcopy()
 
     if(ui->usersettingscopy->isVisibleTo(ui->copypanel))
     {
-        if(sb::exec("chroot /.sbsystemcopy sh -c \"for rmuser in $(grep :\\$6\\$* /etc/shadow | cut -d : -f 1) ; do [ $rmuser = " % guname() % " ] || [ $rmuser = root ] || userdel $rmuser ; done\"")) return err();
+        if(sb::exec("arch-chroot /.sbsystemcopy sh -c \"for rmuser in $(grep :\\$6\\$* /etc/shadow | cut -d : -f 1) ; do [ $rmuser = " % guname() % " ] || [ $rmuser = root ] || userdel $rmuser ; done\"")) return err();
         QStr nfile;
 
         if(guname() != "root")
@@ -2597,7 +2597,7 @@ void systemback::systemcopy()
 
     //             if(! cline.startsWith('#') && cline.contains("UUID="))
     //             {
-    //                 if (intrrpt || !sb::crtfile("/.sbsystemcopy/etc/mtab") || sb::exec("chroot /.sbsystemcopy mkinitcpio -P"))
+    //                 if (intrrpt || !sb::crtfile("/.sbsystemcopy/etc/mtab") || sb::exec("arch-chroot /.sbsystemcopy mkinitcpio -P"))
     //                     return err();
     //                 break;
     //             }
@@ -2610,24 +2610,28 @@ void systemback::systemcopy()
 
     if(ui->grubinstallcopy->isVisibleTo(ui->copypanel))
     {
-        if(intrrpt) return err();
-        { QSL mlst{"dev", "dev/pts", "proc", "sys"};
-        for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) sb::mount('/' % bpath, "/.sbsystemcopy/" % bpath); }
+        // if(intrrpt) return err();
+        // { 
+        //     QSL mlst{"dev", "dev/pts", "proc", "sys"};
+        //     for(cQStr &bpath : (sb::mcheck("/run") ? mlst << "/run" : mlst)) 
+        //         sb::mount('/' % bpath, "/.sbsystemcopy/" % bpath); 
+        // }
 
         if (intrrpt ||
             !sb::crtfile("/.sbsystemcopy/etc/mtab") ||
             !cfmod("/.sbsystemcopy/copykernel.sh", 0755) ||
-            sb::exec("chroot /.sbsystemcopy /copykernel.sh"))
+            sb::exec("arch-chroot /.sbsystemcopy /copykernel.sh"))
             return err();
             
         sb::remove("/.sbsystemcopy/copykernel.sh");
 
         if(ui->grubinstallcopy->currentText() == tr("Disabled"))
-            sb::exec("chroot /.sbsystemcopy mkdir -p /boot/grub ; " % ugrubcmd());
+            sb::exec("arch-chroot /.sbsystemcopy mkdir -p /boot/grub ; " % ugrubcmd());
         else
         {
-            if (grub.isEFI) sb::mount(efipart, "/.sbsystemcopy/boot/efi");
-            if(sb::exec("chroot /.sbsystemcopy bash -c \"grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
+            if (grub.isEFI && (sb::isdir("/.sbsystemcopy/boot/efi") || sb::crtdir("/.sbsystemcopy/boot/efi")))
+                sb::mount(efipart, "/.sbsystemcopy/boot/efi");
+            if(sb::exec("arch-chroot /.sbsystemcopy sh -c \"grub-install --force --target=" % grub.arch % grub.name % (grub.isEFI ? "--efi-directory=/boot/efi --bootloader-id=SB --recheck" : (ui->grubinstallcopy->currentText() == "Auto" ? sb::gdetect("/.sbsystemcopy") : ui->grubinstallcopy->currentText())) % ";" % ugrubcmd() % "\""))
                 return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 308 : 315);
         }
     }
