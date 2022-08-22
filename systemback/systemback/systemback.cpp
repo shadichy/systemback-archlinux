@@ -826,7 +826,7 @@ void systemback::unitimer()
                 
                 if(sb::isdir("/sys/firmware/efi"))
                 {
-                    if (sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "64" && sb::execSTDOUT("uname -m") == "i686")
+                    if(sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") && sb::exec("bash -c \"uname -m | grep 'x86_64'\""))
                         goto noefi;
 
                     goto isefi;
@@ -861,7 +861,7 @@ void systemback::unitimer()
 
                 goto noefi;
             isefi:
-                grub.name = "-efi ", grub.arch = (sb::execSTDOUT("cat /sys/firmware/efi/fw_platform_size") == "64" ? "x86_64" : "i386"), grub.isEFI = true,
+                grub.name = "-efi ", grub.arch = (sb::exec("grep '32' /sys/firmware/efi/fw_platform_size") ? "x86_64" : "i386"), grub.isEFI = true,
                 ui->repairmountpoint->addItem("/mnt/boot/efi"),
                 ui->grubinstallcopy->hide();
                 for(QCbB cmbx : QCbBL{ui->grubinstallcopy, ui->grubreinstallrestore, ui->grubreinstallrepair}) cmbx->addItems({"EFI", tr("Disabled")});
@@ -2099,18 +2099,18 @@ void systemback::systemcopy()
 
             if(grub.isEFI && mpoint == "/boot/efi") efipart = part;
 
-            if(fstype.length() > 2)
+            if(fstype.length() > 2 || !sb::exec("bash -c \"[ -z $(lsblk -n -r -o fstype " % part % ") ]\""))
             {
-                QStr lbl("SB@" % (mpoint.startsWith('/') ? sb::right(mpoint, -1) : mpoint));
-
+                QStr lbl("SB@" % mpoint.split("/").last());
+                QStr fs(fstype.length() <= 2 ? (mpoint == "/boot/efi" ? "vfat" : "ext4") : fstype);
                 uchar rv(
-                    fstype == "swap" ? sb::exec("mkswap -L " % lbl % ' ' % part) :
-                    fstype == "jfs" ? sb::exec("mkfs.jfs -qL " % lbl % ' ' % part) :
-                    fstype == "reiserfs" ? sb::exec("mkfs.reiserfs -ql " % lbl % ' ' % part) :
-                    fstype == "xfs" ? sb::exec("mkfs.xfs -fL " % lbl % ' ' % part) :
-                    fstype == "vfat" ? sb::setpflag(part, "boot") ? sb::exec("mkfs.vfat -F 32 -n " % lbl.toUpper() % ' ' % part) : 255 :
-                    fstype == "btrfs" ? (ckd.contains(part) ? 0 : sb::exec("mkfs.btrfs -fL " % lbl % ' ' % part)) ? sb::exec("mkfs.btrfs -L " % lbl % ' ' % part) : 0 :
-                    sb::exec("mkfs." % fstype % " -FL " % lbl % ' ' % part));
+                    fs == "swap" ? sb::exec("mkswap -L " % lbl % ' ' % part) :
+                    fs == "jfs" ? sb::exec("mkfs.jfs -qL " % lbl % ' ' % part) :
+                    fs == "reiserfs" ? sb::exec("mkfs.reiserfs -ql " % lbl % ' ' % part) :
+                    fs == "xfs" ? sb::exec("mkfs.xfs -fL " % lbl % ' ' % part) :
+                    fs == "vfat" ? sb::setpflag(part, "boot") ? sb::exec("mkfs.vfat -F 32 -n " % lbl.toUpper() % ' ' % part) : 255 :
+                    fs == "btrfs" ? (ckd.contains(part) ? 0 : sb::exec("mkfs.btrfs -fL " % lbl % ' ' % part)) ? sb::exec("mkfs.btrfs -L " % lbl % ' ' % part) : 0 :
+                    sb::exec("mkfs." % fs % " -FL " % lbl % ' ' % part));
 
                 if(intrrpt) return err();
                 if(rv) return err(ui->userdatafilescopy->isVisibleTo(ui->copypanel) ? 317 : 331, part);
@@ -2605,7 +2605,8 @@ void systemback::systemcopy()
     //     }
     // }
 
-    sb::crtdir("/.sbsystemcopy/boot");
+    if(!(sb::isdir("/.sbsystemcopy/boot") || sb::crtdir("/.sbsystemcopy/boot")))
+        return err();
     sb::crtfile("/.sbsystemcopy/copykernel.sh", "#!/bin/bash\nfor k in /etc/mkinitcpio.d/*.preset; do\na=${k:18:${#k}-25}\nb=$(pacman -Ql $a 2>/dev/null | grep 'vmlinuz' | awk '{print $2}')\nc=$(dirname $k)\n[ -f $c/kernelbase ] && a=$(cat $c/kernelbase)\ncp $b /boot/vmlinuz-$a\ndone\nmkinitcpio -P\nsed -i 's/GRUB_DISABLE_OS_PROBER/#GRUB_DISABLE_OS_PROBER/g' /etc/default/grub");
 
     if(ui->grubinstallcopy->isVisibleTo(ui->copypanel))

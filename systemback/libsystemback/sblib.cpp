@@ -31,11 +31,7 @@
 #include <utime.h>
 #include <fcntl.h>
 
-#ifdef C_MNT_LIB
-#include "libmount.hpp"
-#else
 #include <libmount/libmount.h>
-#endif
 
 #ifdef bool
 #undef bool
