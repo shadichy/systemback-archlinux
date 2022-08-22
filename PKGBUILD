@@ -243,8 +243,6 @@ EOF
 
 
 EOF
-    touch "${pkgdir}/etc/systemback/systemback.includes"
-    touch "${pkgdir}/etc/systemback/systemback.excludes"
     install -dm755 "${pkgdir}/usr"
     install -dm755 "${pkgdir}/etc"
 }
