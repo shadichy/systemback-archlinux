@@ -3305,7 +3305,7 @@ bool sb::thrdscopy(uchar mthd, cQStr &usr, cQStr &srcdir)
                     if(! fopen(file)) return false;
                     QStr cline(file.readLine().trimmed());
                     if(cline.length() == 32) macid = cline;
-                 }
+                }
             }
 
             QSL elst{".cache/gvfs", ".gvfs", ".local/share/Trash/files/", ".local/share/Trash/info/", ".Xauthority", ".ICEauthority"};
