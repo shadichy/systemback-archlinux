@@ -42,15 +42,15 @@ class SHARED_EXPORT_IMPORT sb : public QThread
 
 public:
     enum { Remove = 0, Copy = 1, Sync = 2, Mount = 3, Umount = 4, Readprttns = 5, Readlvdevs = 6, Ruuid = 7, Setpflag = 8, Mkptable = 9, Mkpart = 10, Delpart = 11, Crtrpoint = 12, Srestore = 13, Scopy = 14, Lvprpr = 15,
-           MSDOS = 0, GPT = 1, Clear = 2, Primary = 3, Extended = 4, Logical = 5, Freespace = 6, Emptyspace = 7,
-           Nodbg = 0, Errdbg = 1, Alldbg = 2, Extdbg = 3, Cextdbg = 4, Nulldbg = 5, Falsedbg = 6,
-           Notexist = 0, Isfile = 1, Isdir = 2, Islink = 3, Isblock = 4, Unknown = 5,
-           Noflag = 0, Silent = 1, Bckgrnd = 2, Prgrss = 4, Wait = 8,
-           Sblock = 0, Alpmlock = 1, Schdlrlock = 2,
-           False = 0, True = 1, Empty = 2, Include = 3,
-           Crtdir = 0, Rmfile = 1, Crthlnk = 2,
-           Read = 0, Write = 1, Exec = 2,
-           Norm = 0, All = 1, Mixed = 2 };
+        MSDOS = 0, GPT = 1, Clear = 2, Primary = 3, Extended = 4, Logical = 5, Freespace = 6, Emptyspace = 7,
+        Nodbg = 0, Errdbg = 1, Alldbg = 2, Extdbg = 3, Cextdbg = 4, Nulldbg = 5, Falsedbg = 6,
+        Notexist = 0, Isfile = 1, Isdir = 2, Islink = 3, Isblock = 4, Unknown = 5,
+        Noflag = 0, Silent = 1, Bckgrnd = 2, Prgrss = 4, Wait = 8,
+        Sblock = 0, Alpmlock = 1, Schdlrlock = 2,
+        False = 0, True = 1, Empty = 2, Include = 3,
+        Crtdir = 0, Rmfile = 1, Crthlnk = 2,
+        Read = 0, Write = 1, Exec = 2,
+        Norm = 0, All = 1, Mixed = 2 };
 
     static sb SBThrd;
     static QStr ThrdStr[3], eout, sdir[3], schdlr[2], pnames[15], lang, style, wsclng;

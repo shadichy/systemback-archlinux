@@ -407,7 +407,7 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
                             {
                                 QStr cline(file.readLine().trimmed());
 
-                                if(cline.startsWith("sudo:"))
+                                if(cline.startsWith("wheel:"))
                                     for(cQStr &usr : sb::right(cline, -sb::rinstr(cline, ":")).split(','))
                                         if(! usr.isEmpty() && ui->admins->findText(usr) == -1) ui->admins->addItem(usr);
                             }
@@ -2303,7 +2303,7 @@ void systemback::systemcopy()
                 {
                     QStr nline(file.readLine().trimmed());
 
-                    if(nline.startsWith("sudo:") && ui->rootpassword1->text().isEmpty() && ! sb::right(nline, -sb::rinstr(nline, ":")).split(',').contains(guname()))
+                    if(nline.startsWith("wheel:") && ui->rootpassword1->text().isEmpty() && ! sb::right(nline, -sb::rinstr(nline, ":")).split(',').contains(guname()))
                         nline.append((nline.endsWith(':') ? nullptr : ",") % nuname);
                     else if(guname() != nuname)
                     {
@@ -7591,7 +7591,7 @@ void systemback::on_livenew_clicked()
         if(intrrpt) return err();
         pset(18, " 2/3");
 
-        for(cQStr &excl : {"/etc/fstab", "/etc/mtab", "/etc/udev/rules.d/70-persistent-cd.rules", "/etc/udev/rules.d/70-persistent-net.rules", "/var/lib/libvirt/images"})
+        for(cQStr &excl : {"/etc/fstab", "/etc/mtab", "/etc/udev/rules.d/70-persistent-cd.rules", "/etc/udev/rules.d/70-persistent-net.rules", "/var/lib/libvirt/images", "/usr/share/man", "/usr/share/info", "/usr/share/gtk-doc"})
             if(sb::exist(excl)) elist.append(" -e " % excl);
 
         for(cQStr &cdir : {"/etc/rc0.d", "/etc/rc1.d", "/etc/rc2.d", "/etc/rc3.d", "/etc/rc4.d", "/etc/rc5.d", "/etc/rc6.d", "/etc/rcS.d", "/var/cache", "/var/log", "/var/tmp", "/var/lib/pacman/sync", "/var/lib/systemd/coredump"})
