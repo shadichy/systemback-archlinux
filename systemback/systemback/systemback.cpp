@@ -5013,7 +5013,7 @@ void systemback::on_pointexclude_clicked()
                     ui->excludedlist->addItem(cline);
             }
         else 
-            std::cout << "code 1\n";
+            // std::cout << "code 1\n";
     }
 
     ilstupdt(),
@@ -6622,7 +6622,7 @@ void systemback::on_excludeadditem_clicked()
         }
     }
     else
-        std::cout << "code 2\n";
+        // std::cout << "code 2\n";
 
     ui->excludecover->hide(), busy(false);
 }
@@ -6688,7 +6688,7 @@ void systemback::on_excluderemoveitem_clicked()
             ui->excludeback->setFocus();
     }
     else 
-        std::cout << "code 3\n";
+        // std::cout << "code 3\n";
 
     ui->excludecover->hide(), busy(false);
 }
@@ -7405,7 +7405,7 @@ void systemback::on_livenew_clicked()
     { uchar ncount(0);
     while(sb::exist(sb::sdir[2] % '/' % ifname % ".sblive")) ncount++ ? ifname = sb::left(ifname, sb::rinstr(ifname, "_")) % QStr::number(ncount) : ifname.append("_1"); }
 
-    // std::cout << (sb::exist(sb::sdir[2] % "/.sblivesystemcreate") ? "directory exists" : "directory does not exist") << std::endl;
+    // // std::cout << (sb::exist(sb::sdir[2] % "/.sblivesystemcreate") ? "directory exists" : "directory does not exist") << std::endl;
 
     if(intrrpt || ! (
         sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/.disk/info", "Systemback Live (" % ifname % ") - Release " % sb::right(ui->version->text(), -sb::rinstr(ui->version->text(), "_")) % '\n') && 
