@@ -5012,8 +5012,6 @@ void systemback::on_pointexclude_clicked()
                 else if(ui->liveexclude->isChecked() && ! cline.isEmpty())
                     ui->excludedlist->addItem(cline);
             }
-        else 
-            // std::cout << "code 1\n";
     }
 
     ilstupdt(),
@@ -6621,8 +6619,6 @@ void systemback::on_excludeadditem_clicked()
             ui->excludeback->setFocus();
         }
     }
-    else
-        // std::cout << "code 2\n";
 
     ui->excludecover->hide(), busy(false);
 }
@@ -6687,8 +6683,6 @@ void systemback::on_excluderemoveitem_clicked()
             ilstupdt(),
             ui->excludeback->setFocus();
     }
-    else 
-        // std::cout << "code 3\n";
 
     ui->excludecover->hide(), busy(false);
 }
