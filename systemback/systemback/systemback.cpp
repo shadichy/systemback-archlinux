@@ -2430,6 +2430,10 @@ void systemback::systemcopy()
             }
         }
 
+        // For sudo users
+        if(sb::isfile("/.sbsystemcopy/etc/sudoers"))
+            sb::exec("sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/g' /.sbsystemcopy/etc/sudoers");
+
         for(uchar a(0) ; a < 5 ; ++a)
         {
             QStr fpath("/.sbsystemcopy/etc/" % [a]() -> QStr {
