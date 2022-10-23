@@ -69,8 +69,8 @@ Images of Systemback
 Arch support is still WIP:
 
 * ~~Move `apt` to `pacman`~~ (Done)
-* ~~Move `casper` | `live-boot` to `mkinitcpio-live-boot`~~ (Done)
-* ~~Move `initramfs-tools` to `mkinitcpio`~~ (Done)
+* Move `casper` | `live-boot` to `dracut`
+* Move `initramfs-tools` to `dracut`
 * ~~Add support for `overlayfs`, replacing `unionfs`~~ (Done)
 * Fix issues
 * Fetch updates from upstream

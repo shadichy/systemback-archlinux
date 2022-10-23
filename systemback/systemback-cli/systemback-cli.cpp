@@ -56,7 +56,7 @@ void systemback::main()
                         return true;
 
                     return false;
-                }()) return sb::isfile("/cdrom/live/airoot.sfs") ? 2
+                }()) return sb::isfile("/cdrom/LiveOS/airoot.sfs") ? 2
                     : getuid() + getgid() ? 3
                     : ! sb::lock(sb::Sblock) ? 4
                     : ! sb::lock(sb::Alpmlock) ? 5
