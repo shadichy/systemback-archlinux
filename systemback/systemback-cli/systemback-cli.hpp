@@ -53,12 +53,12 @@ private:
     uchar storagedir(cQSL &args);
 
     uchar clistart(),
-          restore();
+        restore();
 
     bool newrpnt();
 
     void pset(uchar type),
-         emptycache();
+        emptycache();
 
 private slots:
     void progress(uchar status = Inprog);

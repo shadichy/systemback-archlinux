@@ -60,11 +60,13 @@ package_systemback-locales() {
 }
 package_systemback-scheduler() {
     pkgdesc='Systemback scheduler'
-    depends+=('libsystemback')
-    optdepends=('systemback')
+    depends+=('libsystemback' 'systemback')
     dpkg-deb -xv "../${pkgbase}-scheduler_${pkgver}_${march}.deb" "${pkgdir}"
     mkdir -p "${pkgdir}/usr/share/applications"
-    cp "../${pkgbase}/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.sbsustart.desktop"
+    CDIR=$(pwd)
+    cd "${pkgdir}/usr/share/applications/"
+    ln -s "org.systemback.systemback.desktop" "org.systemback.sbsustart.desktop" 
+    cd "${CDIR}"
     mkdir -p "${pkgdir}/usr/bin"
     cat << EOF > "${pkgdir}/usr/bin/sbsustart"
 #!/bin/bash
@@ -128,10 +130,13 @@ EOF
     install -dm755 "${pkgdir}/usr"
 }
 package_systemback() {
-    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'systemback-scheduler' 'grub' 'mtools' 'arch-install-scripts')
+    depends+=( 'libx11' 'zenity' 'libsystemback' 'systemback-efiboot-amd64' 'systemback-locales' 'grub' 'mtools' 'systemback-scheduler' 'arch-install-scripts')
     optdepends+=('kdialog' 'amd-ucode' 'intel-ucode')
     dpkg-deb -xv "../${pkgbase}_${pkgver}_${march}.deb" "${pkgdir}"
-    cp "${pkgdir}/usr/share/applications/systemback.desktop" "${pkgdir}/usr/share/applications/org.systemback.systemback.desktop"
+    CDIR=$(pwd)
+    cd "${pkgdir}/usr/share/applications/"
+    ln -s "org.systemback.systemback.desktop" "systemback.desktop" 
+    cd "${CDIR}"
     mv "${pkgdir}/usr/bin/systemback" "${pkgdir}/usr/lib/systemback/sbbin"
     cat <<EOF >"${pkgdir}/usr/bin/systemback"
 #!/bin/bash
