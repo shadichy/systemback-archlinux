@@ -26,6 +26,7 @@ TRANSLATIONS = lang/systemback_hu.ts \
                lang/systemback_fr.ts \
                lang/systemback_gl_ES.ts \
                lang/systemback_id.ts \
+               lang/systemback_pl.ts \
                lang/systemback_pt_BR.ts \
                lang/systemback_ro.ts \
                lang/systemback_ru.ts \
