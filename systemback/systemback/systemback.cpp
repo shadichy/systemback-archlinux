@@ -690,6 +690,7 @@ void systemback::unitimer()
                                 lcode == "gl_ES" ? "Galego" :
                                 lcode == "hu"    ? "Magyar" :
                                 lcode == "id"    ? "Bahasa Indonesia" :
+                                lcode == "pl"    ? "Polski" :
                                 lcode == "pt_BR" ? "Português (Brasil)" :
                                 lcode == "ro"    ? "Română" :
                                 lcode == "ru"    ? "Русский" :
@@ -725,6 +726,7 @@ void systemback::unitimer()
                                     sb::lang == "fr_FR" ? lst.indexOf("Français") :
                                     sb::lang == "gl_ES" ? lst.indexOf("Galego") :
                                     sb::lang == "hu_HU" ? lst.indexOf("Magyar") :
+                                    sb::lang == "pl_PL" ? lst.indexOf("Polski") :
                                     sb::lang == "pt_BR" ? lst.indexOf("Português (Brasil)") :
                                     sb::lang == "ro_RO" ? lst.indexOf("Română") :
                                     sb::lang == "ru_RU" ? lst.indexOf("Русский") :
@@ -7845,6 +7847,7 @@ void systemback::on_languageoverride_clicked(bool chckd)
             lname == "Galego" ? "gl_ES" :
             lname == "Magyar" ? "hu_HU" :
             lname == "Bahasa Indonesia" ? "id_ID" :
+            lname == "Polski" ? "pl_PL" :
             lname == "Português (Brasil)" ? "pt_BR" :
             lname == "Română" ? "ro_RO" :
             lname == "Русский" ? "ru_RU" :
@@ -7878,6 +7881,7 @@ void systemback::on_languages_currentIndexChanged(cQStr &arg1)
             arg1 == "Galego" ? "gl_ES" :
             arg1 == "Magyar" ? "hu_HU" :
             arg1 == "Bahasa Indonesia" ? "id_ID" :
+            arg1 == "Polski" ? "pl_PL" :
             arg1 == "Português (Brasil)" ? "pt_BR" :
             arg1 == "Română" ? "ro_RO" :
             arg1 == "Русский" ? "ru_RU" :
