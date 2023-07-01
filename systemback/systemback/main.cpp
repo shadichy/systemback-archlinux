@@ -33,9 +33,6 @@ int main(int argc, char *argv[])
         //     return 1;
         // }
 
-        if((sb::exist("/media") && !sb::islink("/media") && !sb::remove("/media")) || (!sb::islink("/media") && sb::exec("ln -s /run/media /media")))
-            sb::print("\nAn error occurred while trying to create symlink /media\n");
-
         systemback w;
         w.fscrn ? w.showFullScreen() : w.show();
         return a.exec();

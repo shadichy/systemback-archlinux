@@ -91,7 +91,7 @@ void scheduler::main()
                 sb::unlock(sb::Sblock);
             else
             {
-                if(sb::schdle[5] || ! sb::execsrch("/usr/lib/systemback/sbbin"))
+                if(sb::schdle[5] || ! sb::execsrch("/usr/bin/systemback"))
                     newrpnt();
                 else
                 {
@@ -101,7 +101,7 @@ void scheduler::main()
                             QStr path("/home/" % qApp->arguments().at(1) % "/.Xauthority");
                             return (sb::isfile(path) && QFile(path).copy(xauth)) || (sb::isfile(path = usrhm % "/.Xauthority") && QFile(path).copy(xauth));
                         }()) 
-                        sb::exec("/usr/lib/systemback/sbbin schedule", 
+                        sb::exec("/usr/bin/systemback schedule", 
                         sb::Wait, "XAUTHORITY=" % xauth),
                         sb::rmfile(xauth);
                 }

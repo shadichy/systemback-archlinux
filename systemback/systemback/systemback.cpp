@@ -312,9 +312,9 @@ systemback::systemback() : QMainWindow(nullptr, Qt::FramelessWindowHint), ui(new
 
                         if(fscrn)
                             utimer.stop(), hide(),
-                            sb::exec("/usr/lib/systemback/sbbin finstall", sb::Wait);
+                            sb::exec("/usr/bin/systemback finstall", sb::Wait);
                         else
-                            sb::exec("/usr/lib/systemback/sbbin", sb::Bckgrnd);
+                            sb::exec("/usr/bin/systemback", sb::Bckgrnd);
 
                         close();
                     }
@@ -828,7 +828,7 @@ void systemback::unitimer()
                 
                 if(sb::isdir("/sys/firmware/efi"))
                 {
-                    if(sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") && sb::exec("bash -c \"uname -m | grep 'x86_64'\""))
+                    if(sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") && sb::exec("sh -c \"uname -m | grep -q 'x86_64'\""))
                         goto noefi;
 
                     goto isefi;
@@ -2101,7 +2101,7 @@ void systemback::systemcopy()
 
             if(grub.isEFI && mpoint == "/boot/efi") efipart = part;
 
-            if(fstype.length() > 2 || !sb::exec("bash -c \"[ -z $(lsblk -n -r -o fstype " % part % ") ]\""))
+            if(fstype.length() > 2 || !sb::exec("sh -c \"[ -z $(lsblk -nr -o fstype " % part % ") ]\""))
             {
                 QStr lbl("SB@" % mpoint.split("/").last());
                 QStr fs(fstype.length() <= 2 ? (mpoint == "/boot/efi" ? "vfat" : "ext4") : fstype);
@@ -2674,7 +2674,7 @@ void systemback::systemcopy()
 QStr systemback::rkernel()
 {
     QStr kdir("/usr/lib/modules/" % ckname());
-    return (sb::isfile(kdir % "/kernelbase") ? sb::execSTDOUT(" bash -c \"cat " % kdir % "/kernelbase | tr -d '\\n' \"\"") : sb::execSTDOUT("bash -c \"pacman -Qo " % kdir % "/vmlinuz | awk '{print $5}' | tr -d '\\n' \""));
+    return (sb::isfile(kdir % "/kernelbase") ? sb::execSTDOUT("sh -c \"cat " % kdir % "/kernelbase | tr -d '\\n' \"\"") : sb::execSTDOUT("sh -c \"pacman -Qo " % kdir % "/vmlinuz | awk '{print $5}' | tr -d '\\n' \""));
 }
 
 void systemback::livewrite()
@@ -4132,16 +4132,16 @@ void systemback::on_repairmenu_clicked()
 void systemback::on_systemupgrade_clicked()
 {
     statustart(), pset(11);
-    QDateTime ofdate(QFileInfo("/usr/lib/systemback/sbbin").lastModified());
+    QDateTime ofdate(QFileInfo("/usr/bin/systemback").lastModified());
     sb::unlock(sb::Alpmlock),
     sb::exec("xterm +sb -bg grey85 -fg grey25 -fa a -fs 9 -geometry 80x24+" % QStr::number(ss(80)) % '+' % QStr::number(ss(70)) % " -n \"System upgrade\" -T \"System upgrade\" -cr grey40 -selbg grey86 -bw 0 -bc -bcf 500 -bcn 500 -e sbsysupgrade", sb::Noflag, "DBGLEV=0");
 
     if(isVisible())
     {
-        if(ofdate != QFileInfo("/usr/lib/systemback/sbbin").lastModified())
+        if(ofdate != QFileInfo("/usr/bin/systemback").lastModified())
             nrxth = true,
             sb::unlock(sb::Sblock),
-            sb::exec("/usr/lib/systemback/sbbin", sb::Bckgrnd),
+            sb::exec("/usr/bin/systemback", sb::Bckgrnd),
             close();
         else if(sb::lock(sb::Alpmlock))
             ui->statuspanel->hide(),
@@ -5027,16 +5027,7 @@ void systemback::on_liveexclude_clicked()
 
 QStr systemback::rebootcmd()
 {
-    return (
-        sb::execsrch("reboot") ? "reboot" : 
-        sb::execsrch("systemctl") ? "systemctl reboot" : 
-        sb::execsrch("loginctl") ? "loginctl reboot" : 
-        sb::execsrch("openrc-shutdown") ? "openrc-shutdown -r now" : 
-        sb::execsrch("runit-init") ? "runit-init 6" : 
-        sb::execsrch("66-hpr") ? "66-hpr -r now" : 
-        sb::execsrch("s6-linux-init-hpr") ? "s6-linux-init-hpr -r now" : 
-        "init 6"
-    );
+    return (sb::execsrch("reboot") ? "reboot" : "sh -c '$(ps -o cmd --no-headers -p 1) 6'");
 }
 
 void systemback::on_dialogok_clicked()
@@ -6246,7 +6237,7 @@ void systemback::on_mountpoint_currentTextChanged(cQStr &arg1)
             else if(sb::like(arg1, {"_/boot/efi_", "_SWAP_"}))
                 return ui->changepartition->isEnabled() ? ui->changepartition->setDisabled(true) : void();
 
-            if(arg1.isEmpty() || (arg1.length() > 1 && arg1.endsWith('/')) || sb::like(arg1, {'_' % ompt % '_', "_/bin_", "_/sbin_", "_/etc_", "_/lib_", "_/lib32_", "_/lib64_", "_/media_"}) || (ui->usersettingscopy->isVisible() && arg1.startsWith("/home/")) || (arg1 != "/boot/efi" && ui->partitionsettings->item(ui->partitionsettings->currentRow(), 10)->text().toULongLong() < 268435456) || (grub.isEFI && mpt == "/boot/efi" && arg1 != "/boot/efi") || (nohmcpy[0] && mpt == "/home" && arg1 != "/home") || (mpt == "SWAP" && arg1 != "SWAP")
+            if(arg1.isEmpty() || (arg1.length() > 1 && arg1.endsWith('/')) || sb::like(arg1, {'_' % ompt % '_', "_/bin_", "_/sbin_", "_/etc_", "_/lib_", "_/lib32_", "_/lib64_"}) || (ui->usersettingscopy->isVisible() && arg1.startsWith("/home/")) || (arg1 != "/boot/efi" && ui->partitionsettings->item(ui->partitionsettings->currentRow(), 10)->text().toULongLong() < 268435456) || (grub.isEFI && mpt == "/boot/efi" && arg1 != "/boot/efi") || (nohmcpy[0] && mpt == "/home" && arg1 != "/home") || (mpt == "SWAP" && arg1 != "SWAP")
                 || (arg1 != "SWAP" && [&] {
                         for(ushort a(0) ; a < ui->partitionsettings->rowCount() ; ++a)
                             if(ui->partitionsettings->item(a, 4)->text() == arg1) return true;
@@ -6322,7 +6313,7 @@ void systemback::on_repairmountpoint_currentTextChanged(cQStr &arg1)
 
     if(! arg1.isEmpty() && (! sb::like(arg1, {"_/_", "_/m_", "_/mn_", "_/mnt_", "_/mnt/*"}) || sb::like(arg1, {"* *", "*//*"})))
         ui->repairmountpoint->setCurrentText(sb::left(arg1, -1));
-    else if(! arg1.startsWith("/mnt") || sb::like(arg1, {"*/_", "_/mnt/bin_", "_/mnt/sbin_", "_/mnt/etc_", "_/mnt/lib_", "_/mnt/lib32_", "_/mnt/lib64_", "_/mnt/media_"}) || (arg1.length() > 5 && sb::issmfs("/", "/mnt")) || sb::mcheck(arg1 % '/'))
+    else if(! arg1.startsWith("/mnt") || sb::like(arg1, {"*/_", "_/mnt/bin_", "_/mnt/sbin_", "_/mnt/etc_", "_/mnt/lib_", "_/mnt/lib32_", "_/mnt/lib64_"}) || (arg1.length() > 5 && sb::issmfs("/", "/mnt")) || sb::mcheck(arg1 % '/'))
     {
         if(ui->repairmount->isEnabled()) ui->repairmount->setDisabled(true);
     }
@@ -7344,7 +7335,7 @@ QStr systemback::mkisocmd(cQStr &path, cQStr &out)
         mbr = "-isohybrid-mbr \"" % path % "/isolinux/isohdpfx.bin\"",
         gpt = "-isohybrid-gpt-basdat",
         arg = "-e efi.img";
-    return cmd % " -V sblive -cache-inodes -J -R " % mbr % " -c isolinux/boot.cat -b isolinux/isolinux.bin -iso-level 3 -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot " % arg % " -no-emul-boot " % gpt % " -o \"" % out % ".iso\" \"" % path % "\"";
+    return cmd % " -V sblive -cache-inodes -J -R " % mbr % " -c isolinux/boot.cat -b isolinux/isolinux.bin -iso-level 3 -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot " % arg % " -no-emul-boot " % gpt % " -o \"" % out % "\" \"" % path % "\"";
 }
 
 bool systemback::cpdir(cQStr &src, cQStr &newdir)
@@ -7374,7 +7365,7 @@ void systemback::on_livenew_clicked()
                     dlg = 328;
             }
 
-            for(cQStr &dir : {"/.sblvtmp", "/media/.sblvtmp", "/snap/.sblvtmp", "/var/.sblvtmp", "/home/.sbuserdata", "/root/.sbuserdata"})
+            for(cQStr &dir : {"/.sblvtmp", "/snap/.sblvtmp", "/var/.sblvtmp", "/home/.sbuserdata", "/root/.sbuserdata"})
                 if(sb::isdir(dir)) sb::remove(dir);
 
             if(sb::autoiso) on_livemenu_clicked();
@@ -7611,7 +7602,7 @@ void systemback::on_livenew_clicked()
 
         sb::unlock(sb::Alpmlock);
         sb::unlock(sb::Sblock);
-        if(sb::exec("mksquashfs" % ide % " \"" % sb::sdir[2] % "\"/.sblivesystemcreate/.systemback /media/.sblvtmp/media /var/.sblvtmp/var \"" % sb::sdir[2] % "\"/.sblivesystemcreate/live/airootfs.sfs " % (sb::xzcmpr ? "-comp xz " : "-comp zstd ") % " -info -b 1M -no-duplicates -no-recovery -always-use-fragments " % elist, sb::Prgrss)) return err(311);
+        if(sb::exec("mksquashfs" % ide % " \"" % sb::sdir[2] % "\"/.sblivesystemcreate/.systemback /var/.sblvtmp/var \"" % sb::sdir[2] % "\"/.sblivesystemcreate/live/airootfs.sfs " % (sb::xzcmpr ? "-comp xz " : "-comp zstd ") % " -info -b 1M -no-duplicates -no-recovery -always-use-fragments " % elist, sb::Prgrss)) return err(311);
         sb::lock(sb::Alpmlock);
         sb::lock(sb::Sblock);
     }
@@ -7620,15 +7611,21 @@ void systemback::on_livenew_clicked()
 
     pset(19, " 3/3"),
     sb::Progress = -1;
-    for(cQStr &dir : {"/.sblvtmp", "/media/.sblvtmp", "/var/.sblvtmp"}) sb::remove(dir);
+    for(cQStr &dir : {"/.sblvtmp", "/var/.sblvtmp"}) sb::remove(dir);
 
     for(cQStr &dir : {"/home/.sbuserdata", "/root/.sbuserdata", "/snap/.sblvtmp"})
         if(sb::isdir(dir)) sb::remove(dir);
 
     if(intrrpt) return err();
 
+    bool hasGrub = sb::execsrch("grub-rescue") && sb::execSTDOUT("uname -m") == "x86_64";
+
     {
-        QStr rpart, grxorg, srxorg, prmtrs;
+        QStr rpart,
+            grxorg,
+            srxorg,
+            prmtrs,
+            initf(" init=" % sb::execSTDOUT("ps -o cmd --no-headers -p 1"));
         if(sb::fsize(sb::sdir[2] % "/.sblivesystemcreate/live/airootfs.sfs") > 4294967295) rpart = "root=LABEL=SBROOT ";
 
         if(sb::isfile("/etc/default/grub"))
@@ -7666,14 +7663,14 @@ void systemback::on_livenew_clicked()
         }
 
         if(xmntry)
-            grxorg = "menuentry \"" % tr("Boot Live without xorg.conf file") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live noxconf quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n", srxorg = "label noxconf\n  menu label " % tr("Boot Live without xorg.conf file") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img noxconf quiet splash" % prmtrs % "\n\n";
+            grxorg = "menuentry \"" % tr("Boot Live without xorg.conf file") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live noxconf quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n", srxorg = "label noxconf\n  menu label " % tr("Boot Live without xorg.conf file") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img noxconf quiet splash" % prmtrs % initf % "\n\n";
         if(
-            (sb::isfile("/usr/share/systemback/efi-amd64.bootfiles") && sb::exec("tar --zstd -xf /usr/share/systemback/efi-amd64.bootfiles -C \"" % sb::sdir[2] % "\"/.sblivesystemcreate --no-same-owner --no-same-permissions")) || !(
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", "default vesamenu.c32\nprompt 0\ntimeout 100\n\nmenu title Systemback Live (" % ifname % ")\nmenu tabmsg " % tr("Press TAB key to edit") % "\nmenu background splash.png\n\nlabel live\n  menu label " % tr("Boot Live system") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img quiet splash" % prmtrs % "\n\nlabel install\n  menu label " % tr("Boot system installer") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img finstall quiet splash" % prmtrs % "\n\nlabel safe\n  menu label " % tr("Boot Live in safe graphics mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img xforcevesa nomodeset quiet splash" % prmtrs % "\n\n" % srxorg % "label debug\n  menu label " % tr("Boot Live in debug mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img" % prmtrs % "\n\nlabel existing\n  menu label " % tr("Boot an existing operating system") % "\n  com32 chain.c32\n  append hd0 0\n\nlabel reboot\n  menu label " % tr("Restart") % "\n  com32 reboot.c32\n\nlabel poweroff\n  menu label " % tr("Shutdown") % "\n  com32 poweroff.c32\n") &&
+            (!hasGrub && sb::isfile("/usr/share/systemback/efi-amd64.bootfiles") && sb::exec("tar -xaf /usr/share/systemback/efi-amd64.bootfiles -C \"" % sb::sdir[2] % "\"/.sblivesystemcreate --no-same-owner --no-same-permissions")) || !(
+                (!hasGrub && sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", "default vesamenu.c32\nprompt 0\ntimeout 100\n\nmenu title Systemback Live (" % ifname % ")\nmenu tabmsg " % tr("Press TAB key to edit") % "\nmenu background splash.png\n\nlabel live\n  menu label " % tr("Boot Live system") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img quiet splash" % prmtrs % initf % "\n\nlabel install\n  menu label " % tr("Boot system installer") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img finstall quiet splash" % prmtrs % initf % "\n\nlabel safe\n  menu label " % tr("Boot Live in safe graphics mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n\n" % srxorg % "label debug\n  menu label " % tr("Boot Live in debug mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img" % prmtrs % initf % "\n\nlabel existing\n  menu label " % tr("Boot an existing operating system") % "\n  com32 chain.c32\n  append hd0 0\n\nlabel reboot\n  menu label " % tr("Restart") % "\n  com32 reboot.c32\n\nlabel poweroff\n  menu label " % tr("Shutdown") % "\n  com32 poweroff.c32\n")) &&
                 sb::copy("/usr/share/systemback/splash.png", sb::sdir[2] % "/.sblivesystemcreate/boot/grub/splash.png") &&
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/grub.cfg", "if loadfont /boot/grub/fonts/unicode.pf2\nthen\n  set gfxmode=auto\n  insmod efi_gop\n  insmod efi_uga\n  insmod gfxterm\n  terminal_output gfxterm\nfi\n\ninsmod gfxmenu\ninsmod png\n\nset theme=/boot/grub/theme.txt\nexport theme\n\nset timeout_style=menu\nset timeout=10\n\nmenuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live finstall quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live xforcevesa nomodeset quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live " % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Restart") % "\" {\n  reboot\n}\n\nmenuentry \"" % tr("Shutdown") % "\" {\n  halt\n}\n") &&
+                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/grub.cfg", "if loadfont /boot/grub/fonts/unicode.pf2\nthen\n  set gfxmode=auto\n  insmod efi_gop\n  insmod efi_uga\n  insmod gfxterm\n  terminal_output gfxterm\nfi\n\ninsmod gfxmenu\ninsmod png\n\nset theme=/boot/grub/theme.txt\nexport theme\n\nset timeout_style=menu\nset timeout=10\n\nmenuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live " % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Restart") % "\" {\n  reboot\n}\n\nmenuentry \"" % tr("Shutdown") % "\" {\n  halt\n}\n") &&
                 sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/theme.txt", "title-color: \"white\"\ntitle-text: \"Systemback Live (" % ifname % ")\"\ntitle-font: \"Sans Regular 16\"\ndesktop-color: \"black\"\ndesktop-image: \"splash.png\"\nmessage-color: \"white\"\nmessage-bg-color: \"black\"\nterminal-font: \"Sans Regular 12\"\n\n+ boot_menu {\n  top = 150\n  left = 15%\n  width = 75%\n  height = " % (xmntry ? "150" : "130") % "\n  item_font = \"Sans Regular 12\"\n  item_color = \"grey\"\n  selected_item_color = \"white\"\n  item_height = 20\n  item_padding = 15\n  item_spacing = 5\n}\n\n+ vbox {\n  top = 100%\n  left = 2%\n  + label {text = \"" % tr("Press 'E' key to edit") % "\" font = \"Sans 10\" color = \"white\" align = \"left\"}\n}\n") &&
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/loopback.cfg", "menuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path finstall quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path xforcevesa nomodeset quiet splash" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path" % prmtrs % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n")) ||
+                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/loopback.cfg", "menuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n")) ||
             intrrpt || !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/.systemback") || intrrpt || (sb::isdir(sb::sdir[2] % "/.sblivesystemcreate/userdata") && !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/userdata")) || intrrpt)
             return err();
     }
@@ -7698,19 +7695,35 @@ void systemback::on_livenew_clicked()
         {
             pset(20, " 4/3+1"),
             sb::Progress = -1;
-            if(! (sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", sb::sdir[2] % "/.sblivesystemcreate/syslinux/isolinux.cfg") && sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux", sb::sdir[2] % "/.sblivesystemcreate/isolinux")) || intrrpt) return err();
-            if (!sb::copy("/usr/lib/syslinux/bios/isohdpfx.bin", sb::sdir[2] % "/.sblivesystemcreate/isolinux/isohdpfx.bin"))
+
+            if (!hasGrub && !(sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", sb::sdir[2] % "/.sblivesystemcreate/syslinux/isolinux.cfg") && sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux", sb::sdir[2] % "/.sblivesystemcreate/isolinux")) || intrrpt ||!sb::copy("/usr/lib/syslinux/bios/isohdpfx.bin", sb::sdir[2] % "/.sblivesystemcreate/isolinux/isohdpfx.bin"))
                 return err();
+
+
             ui->progressbar->setValue(0);
 
-            // if(sb::exec("xorriso -as mkisofs -V sblive -cache-inodes -J -R -isohybrid-mbr \"" % sb::sdir[2] % "/.sblivesystemcreate/isolinux/isohdpfx.bin\" -c isolinux/boot.cat -b isolinux/isolinux.bin -iso-level 3 -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot -isohybrid-gpt-basdat -o \"" % sb::sdir[2] % "\"/" % ifname % ".iso \"" % sb::sdir[2] % "\"/.sblivesystemcreate", sb::Prgrss))
-            if (sb::exec(mkisocmd(sb::sdir[2] % "/.sblivesystemcreate", sb::sdir[2] % "/" % ifname)))
+            QStr isofile(sb::sdir[2] % '/' % ifname % ".iso");
+            if (hasGrub)
             {
-                if(sb::isfile(sb::sdir[2] % '/' % ifname % ".iso")) sb::remove(sb::sdir[2] % '/' % ifname % ".iso");
-                return err(312);
-            }
+                if (sb::exec("grub-mkrescue -V 'SBROOT' -o " % isofile % " --modules='part_msdos part_gpt part_apple fat exfat iso9660 hfs hfsplus ntfs crypto gzio zstd xzio lzopio'"))
+                {
+                    if (sb::isfile(isofile))
+                        sb::remove(isofile);
+                    return err(312);
+                }
+            } 
+            else
+            {
+                if (sb::exec(mkisocmd(sb::sdir[2] % "/.sblivesystemcreate", isofile)))
+                {
+                    if (sb::isfile(isofile))
+                        sb::remove(isofile);
+                    return err(312);
+                }
 
-            if(sb::exec("isohybrid \"" % sb::sdir[2] % "\"/" % ifname % ".iso") || ! cfmod(sb::sdir[2] % '/' % ifname % ".iso", 0666) || intrrpt) return err();
+                if (sb::exec("isohybrid \"" % sb::sdir[2] % "\"/" % ifname % ".iso") || !cfmod(isofile, 0666) || intrrpt)
+                    return err();
+            }
         }
     }
     // restart service

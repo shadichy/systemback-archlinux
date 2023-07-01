@@ -8,5 +8,4 @@ Exec=/usr/bin/sbsustart systemback gtk+
 Type=Application
 Icon=systemback
 Terminal=false
-NotShowIn=KDE;
 Categories=System;

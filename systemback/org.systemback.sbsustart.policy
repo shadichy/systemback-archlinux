@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+    <vendor>systemback</vendor>
+    <vendor_url>https://github.com/shadichy/systemback-archlinux</vendor_url>
+    <action id="org.systemback.sbsustart">
+        <description>Run Systemback</description>
+        <Message>Authorize Systemback to run</Message>
+        <icon_name>systemback</icon_name>
+        <defaults>
+            <allow_any>auth_admin</allow_any>
+            <allow_active>auth_admin</allow_active>
+            <allow_inactive>auth_admin</allow_inactive>
+        </defaults>
+        <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/sbsustart</annotate>
+        <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+    </action>
+</policyconfig>
