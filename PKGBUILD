@@ -1,17 +1,17 @@
 # Maintainer: shadichy <shadichy.dev@gmail.com>
 pkgbase=systemback
 sb=$pkgbase
-pkgname=("lib${sb}" "${sb}-cli" "${sb}" "${sb}-efiboot-amd64")
+pkgname=("lib${sb}" "${sb}-cli" "${sb}")
 pkgver=1.8.9
 pkgrel=4
 pkgdesc='Simple system backup and restore application with extra features'
-arch=(x86_64 i686 pentium4)
+arch=('i686' 'pentium4' 'x86_64' 'arm' 'armv7h' 'armv6h' 'aarch64')
 march=""
 url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
 depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'squashfs-tools' 'libxcrypt-compat')
-optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'update-grub' 'cdrtools' )
-makedepends=('ncurses' 'qt5-tools' 'make' 'procps-ng' 'libarchive' 'libisoburn')
+optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'update-grub')
+makedepends=('ncurses' 'qt5-tools' 'make' 'procps-ng' 'libisoburn')
 # source=()
 # md5sums=('SKIP')
 
@@ -54,12 +54,8 @@ package_systemback-cli() {
 }
 package_systemback() {
     depends+=('libx11' 'zenity' "lib${sb}" 'grub' 'mtools' 'arch-install-scripts' 'mkinitcpio-live-boot' 'xz' 'zstd' 'xterm')
-    optdepends+=('kdialog' 'amd-ucode' 'intel-ucode')
+    optdepends+=('kdialog' 'amd-ucode' 'intel-ucode' 'systemback-efiboot')
 
-    case $march in
-    x86_64) optdepends+=('systemback-efiboot-amd64' 'libisoburn' 'syslinux') ;;
-    i?86) depends+=('systemback-efiboot-amd64' 'libisoburn' 'syslinux') ;;
-    esac
     mkdir -p ${pkgdir}/etc/${sb}
     mkdir -p ${pkgdir}/etc/xdg/autostart
 
@@ -116,19 +112,4 @@ package_systemback() {
     install -m755 ../sbsustart \
         ${sb}/${sb} \
         ${pkgdir}/usr/bin
-}
-
-package_systemback-efiboot-amd64() {
-    mkdir -p ${pkgdir}/usr/share/${sb}
-    install -dm644 ${pkgdir}/usr/share/${sb}
-
-    if [ $march = amd64 ]; then
-        grub-mkrescue -V "SBROOT" -o "grub.iso" --modules="part_msdos part_gpt part_apple fat exfat iso9660 hfs hfsplus ntfs crypto gzio zstd xzio lzopio" --themes=
-        bsdtar -xf grub.iso
-        rm -f grub.iso
-        tar --zstd -cf efi-amd64.bootfiles ./*
-    else
-        cd "../${sb}"
-    fi
-    install -m644 efi-amd64.bootfiles ${pkgdir}/usr/share/${sb}
 }

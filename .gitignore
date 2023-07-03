@@ -28,9 +28,10 @@ systemback/systemback-cli/systemback-cli
 systemback/systemback.pro.user
 *.buildinfo
 *-working-directory
-/src
+src
 /systemback-*
+!/systemback-bootfiles
 .qt_for_python
 /systemback/*.json
-/pkg
+pkg
 /libsystemback
