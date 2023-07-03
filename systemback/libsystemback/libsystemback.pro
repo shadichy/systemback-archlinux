@@ -2,8 +2,7 @@ QT -= gui
 
 TARGET = systemback
 
-CONFIG +=   c++11 \
-            exceptions_off
+CONFIG +=   exceptions_off
 
 TEMPLATE = lib
 
@@ -53,9 +52,3 @@ LIBS += -lmount \
         -lparted
 
 # for arch linux with gcc 12
-
-QMAKE_CC = gcc-11
-QMAKE_CXX = g++-11
-QMAKE_LINK = g++-11
-QMAKE_AR = gcc-ar-11 cqs
-#QMAKE_LFLAGS = -Wl,-Bsymbolic-functions -Wl,--as-needed -fuse-ld=gold -Wl,-z,relro -Wl,-O1 -shared -fPIC -Wl,-soname,libsystemback.so.1

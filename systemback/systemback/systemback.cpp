@@ -827,12 +827,13 @@ void systemback::unitimer()
                 ui->repairmountpoint->addItems({nullptr, "/mnt", "/mnt/home", "/mnt/boot"});
                 
                 if(sb::isdir("/sys/firmware/efi"))
-                {
-                    if(sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") && sb::exec("sh -c \"uname -m | grep -q 'x86_64'\""))
-                        goto noefi;
-
                     goto isefi;
-                }
+                // {
+                //     if(sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") && sb::exec("[ $(uname -m) = 'x86_64' ]"))
+                //         goto noefi;
+
+                //     goto isefi;
+                // }
 
                 {
                     QStr ckernel(ckname());
@@ -863,7 +864,7 @@ void systemback::unitimer()
 
                 goto noefi;
             isefi:
-                grub.name = "-efi ", grub.arch = (sb::exec("grep '32' /sys/firmware/efi/fw_platform_size") ? "x86_64" : "i386"), grub.isEFI = true,
+                grub.name = "-efi ", grub.arch = (sb::exec("grep '64' /sys/firmware/efi/fw_platform_size") ? "i386" : "x86_64"), grub.isEFI = true,
                 ui->repairmountpoint->addItem("/mnt/boot/efi"),
                 ui->grubinstallcopy->hide();
                 for(QCbB cmbx : QCbBL{ui->grubinstallcopy, ui->grubreinstallrestore, ui->grubreinstallrepair}) cmbx->addItems({"EFI", tr("Disabled")});
@@ -7460,7 +7461,7 @@ void systemback::on_livenew_clicked()
     // }
     // else
     // {
-    // sb::crtfile("/usr/lib/initcpio/hooks/sbfstab", "#!/bin/sh\nif [ \"$1\" != prereqs ] && [ \"$BOOT\" = live ] && [ ! -e /root/etc/fstab ]\nthen touch /root/etc/fstab\nfi\n");
+    // sb::crtfile("/usr/lib/initcpio/hooks/sbfstab", "#!/bin/sh\nif [ \"$1\" != prereqs ] && [ \"$BOOT\" = live ] && [ ! -e /new_root/etc/fstab ]\nthen touch /new_root/etc/fstab\nfi\n");
     // if (!cfmod("/usr/lib/initcpio/hooks/sbfstab", 0755))
     //     return err();
     // }
@@ -7474,14 +7475,14 @@ void systemback::on_livenew_clicked()
 
     if(xmntry)
     {
-        sb::crtfile("/usr/lib/initcpio/hooks/sbnoxconf", "#!/bin/sh\nif [ \"$1\" != prereqs ] && grep noxconf /proc/cmdline >/dev/null 2>&1\nthen\nif [ -s /root/etc/X11/xorg.conf ]\nthen rm /root/etc/X11/xorg.conf\nfi\nif [ -d /root/etc/X11/xorg.conf.d ] && ls /root/etc/X11/xorg.conf.d | grep .conf$ >/dev/null 2>&1\nthen rm /root/etc/X11/xorg.conf.d/*.conf 2>/dev/null\nfi\nfi\n");
+        sb::crtfile("/usr/lib/initcpio/hooks/sbnoxconf", "#!/bin/sh\nif [ \"$1\" != prereqs ] && grep noxconf /proc/cmdline >/dev/null 2>&1\nthen\nif [ -s /new_root/etc/X11/xorg.conf ]\nthen rm /new_root/etc/X11/xorg.conf\nfi\nif [ -d /new_root/etc/X11/xorg.conf.d ] && ls /new_root/etc/X11/xorg.conf.d | grep .conf$ >/dev/null 2>&1\nthen rm /new_root/etc/X11/xorg.conf.d/*.conf 2>/dev/null\nfi\nfi\n");
         if (!cfmod("/usr/lib/initcpio/hooks/sbnoxconf", 0755))
             return err();
     }
 
     sb::crtfile("/usr/lib/initcpio/hooks/sbfinstall", [this]() -> QStr
         {
-            QStr ftxt("#!/bin/sh\nif [ \"$1\" != prereqs ] && grep finstall /proc/cmdline >/dev/null 2>&1\nthen\nif [ -f /root/home/" % guname() % "/.config/autostart/dropbox.desktop ]\nthen rm /root/home/" % guname() % "/.config/autostart/dropbox.desktop\nfi\nif [ -f /root/usr/bin/ksplashqml ]\nthen\nchmod -x /root/usr/bin/ksplash* /root/usr/bin/plasma*\nif [ -f /root/usr/share/autostart/plasma-desktop.desktop ]\nthen mv /root/usr/share/autostart/plasma-desktop.desktop /root/usr/share/autostart/plasma-desktop.desktop_\nfi\nif [ -f /root/usr/share/autostart/plasma-netbook.desktop ]\nthen mv /root/usr/share/autostart/plasma-netbook.desktop /root/usr/share/autostart/plasma-netbook.desktop_\nfi\nfi\n");
+            QStr ftxt("#!/bin/sh\nif [ \"$1\" != prereqs ] && grep finstall /proc/cmdline >/dev/null 2>&1\nthen\nif [ -f /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop ]\nthen rm /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop\nfi\nif [ -f /new_root/usr/bin/ksplashqml ]\nthen\nchmod -x /new_root/usr/bin/ksplash* /new_root/usr/bin/plasma*\nif [ -f /new_root/usr/share/autostart/plasma-desktop.desktop ]\nthen mv /new_root/usr/share/autostart/plasma-desktop.desktop /new_root/usr/share/autostart/plasma-desktop.desktop_\nfi\nif [ -f /new_root/usr/share/autostart/plasma-netbook.desktop ]\nthen mv /new_root/usr/share/autostart/plasma-netbook.desktop /new_root/usr/share/autostart/plasma-netbook.desktop_\nfi\nfi\n");
 
             for(uchar a(0) ; a < 5 ; ++a)
             {
@@ -7505,18 +7506,18 @@ void systemback::on_livenew_clicked()
                 if(sb::isfile(fpath) || sb::isdir(sb::left(fpath, sb::rinstr(fpath, "/") - 1))) ftxt.append([&, a]() -> QStr {
                         switch(a) {
                         case 0:
-                            return "cat << EOF >/root/etc/lightdm/lightdm.conf\n[SeatDefaults]\nautologin-guest=false\nautologin-user=" % guname() % "\nautologin-user-timeout=0\nautologin-session=lightdm-autologin\nEOF";
+                            return "cat << EOF >/new_root/etc/lightdm/lightdm.conf\n[SeatDefaults]\nautologin-guest=false\nautologin-user=" % guname() % "\nautologin-user-timeout=0\nautologin-session=lightdm-autologin\nEOF";
                         case 1:
-                            return "sed -ir -e \"s/^#?AutoLoginEnable=.*\\$/AutoLoginEnable=true/\" -e \"s/^#?AutoLoginUser=.*\\$/AutoLoginUser=" % guname() % "/\" -e \"s/^#?AutoReLogin=.*\\$/AutoReLogin=true/\" /root/etc/kde4/kdm/kdmrc";
+                            return "sed -ir -e \"s/^#?AutoLoginEnable=.*\\$/AutoLoginEnable=true/\" -e \"s/^#?AutoLoginUser=.*\\$/AutoLoginUser=" % guname() % "/\" -e \"s/^#?AutoReLogin=.*\\$/AutoReLogin=true/\" /new_root/etc/kde4/kdm/kdmrc";
                         case 2:
-                            return "cat << EOF >/root/etc/sddm.conf\n[Autologin]\nUser=" % guname() % "\nSession=plasma.desktop\nEOF";
+                            return "cat << EOF >/new_root/etc/sddm.conf\n[Autologin]\nUser=" % guname() % "\nSession=plasma.desktop\nEOF";
                         default:
-                            return "cat << EOF >/root" % fpath % "\n[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=" % guname() % "\nEOF";
+                            return "cat << EOF >/new_root" % fpath % "\n[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=" % guname() % "\nEOF";
                         }
                     }() % '\n');
             }
 
-            QStr txt[]{"cat << EOF >/root/etc/xdg/autostart/sbfinstall", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\n", "Type=Application\nIcon=systemback\nTerminal=false\n", "NoDisplay=true\nEOF\n"};
+            QStr txt[]{"cat << EOF >/new_root/etc/xdg/autostart/sbfinstall", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\n", "Type=Application\nIcon=systemback\nTerminal=false\n", "NoDisplay=true\nEOF\n"};
             return ftxt % txt[0] % ".desktop\n" % txt[1] % "Exec=/usr/lib/systemback/sbsustart finstall gtk+\n" % txt[2] % "NotShowIn=KDE;\n" % txt[3] % txt[0] % "-kde.desktop\n" % txt[1] % "Exec=sh -c \"/usr/lib/systemback/sbsustart finstall && if [ -f /usr/bin/plasmashell ] ; then plasmashell --shut-up & elif [ -f /usr/bin/plasma-desktop ] ; then plasma-desktop & fi\"\n" % txt[2] % "OnlyShowIn=KDE;\n" % txt[3] % "fi\n"; }());
 
     if (!cfmod("/usr/lib/initcpio/hooks/sbfinstall", 0755))

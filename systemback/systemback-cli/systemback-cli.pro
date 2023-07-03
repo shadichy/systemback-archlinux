@@ -5,7 +5,6 @@ TARGET = systemback-cli
 
 CONFIG -= app_bundle
 CONFIG += console \
-          c++11 \
           exceptions_off
 
 TEMPLATE = app
@@ -46,7 +45,3 @@ LIBS += -L../libsystemback \
 
 # for arch linux with gcc 12
 
-QMAKE_CC = gcc-11
-QMAKE_CXX = g++-11
-QMAKE_LINK = g++-11
-QMAKE_AR = gcc-ar-11 cqs

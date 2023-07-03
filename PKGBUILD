@@ -9,27 +9,15 @@ arch=(x86_64 i686 pentium4)
 march=""
 url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
-depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'libisoburn' 'squashfs-tools' 'syslinux' 'xterm' 'xz' 'mkinitcpio-live-boot' 'zstd')
-optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'unionfs-fuse' 'update-grub' 'cdrtools')
-makedepends=('ncurses' 'qt5-tools' 'make' 'gcc11' 'dpkg' 'util-linux' 'util-linux-libs' 'qt5-base>=5.5.0' 'gcc11-libs' 'procps-ng' 'libarchive')
+depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'squashfs-tools' 'libxcrypt-compat')
+optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'update-grub' 'cdrtools' )
+makedepends=('ncurses' 'qt5-tools' 'make' 'procps-ng' 'libarchive' 'libisoburn')
 # source=()
 # md5sums=('SKIP')
 
-case $(uname -m) in
-x86_64) march="amd64" ;;
-i?86)
-    march="i386"
-    depends+=('libxcrypt-compat' 'llvm13-libs')
-    ;;
-*)
-    echo "Unsupported architecture: $(uname -m)"
-    exit 1
-    ;;
-esac
-
 build() {
     cd "../${sb}"
-    qmake-qt5
+    qmake-qt5 $([ "$LLVM" ] && [ "$LLVM" != 0 ] && echo "-spec linux-clang")
     make -j$(nproc --all)
     lrelease-qt5 systemback.pro
 }
@@ -65,12 +53,12 @@ package_systemback-cli() {
     install -m755 ${sb}-cli/${sb}-cli ${pkgdir}/usr/bin
 }
 package_systemback() {
-    depends+=('libx11' 'zenity' "lib${sb}" 'grub' 'mtools' 'arch-install-scripts')
+    depends+=('libx11' 'zenity' "lib${sb}" 'grub' 'mtools' 'arch-install-scripts' 'mkinitcpio-live-boot' 'xz' 'zstd' 'xterm')
     optdepends+=('kdialog' 'amd-ucode' 'intel-ucode')
 
     case $march in
-    x86_64) optdepends+=('systemback-efiboot-amd64') ;;
-    i?86) depends+=('systemback-efiboot-amd64') ;;
+    x86_64) optdepends+=('systemback-efiboot-amd64' 'libisoburn' 'syslinux') ;;
+    i?86) depends+=('systemback-efiboot-amd64' 'libisoburn' 'syslinux') ;;
     esac
     mkdir -p ${pkgdir}/etc/${sb}
     mkdir -p ${pkgdir}/etc/xdg/autostart
