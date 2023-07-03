@@ -6,7 +6,6 @@ pkgver=1.8.9
 pkgrel=4
 pkgdesc='Simple system backup and restore application with extra features'
 arch=('i686' 'pentium4' 'x86_64' 'arm' 'armv7h' 'armv6h' 'aarch64')
-march=""
 url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
 depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'squashfs-tools' 'libxcrypt-compat')
