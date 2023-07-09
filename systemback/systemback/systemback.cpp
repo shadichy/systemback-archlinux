@@ -7545,7 +7545,7 @@ void systemback::on_livenew_clicked()
             // return err();
 
     // }
-    if(sb::exec("mkinitcpio -S autodetect -A live_hook,sbnoxconf,sbfinstall -k " % kdir % " -g " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img"))
+    if(sb::exec("mkinitcpio -S autodetect -A live_hook -k " % kdir % " -g " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img"))
         return err(327);
 
     

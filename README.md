@@ -44,10 +44,12 @@ cd systemback-archlinux/
 
 ### Build package
 
-> Note: for 32-bit users: it's recommended to use prebuilt systemback-efiboot-amd64
+> Note: 
+> for 32-bit users: it's recommended to use prebuilt systemback-efiboot-amd64
+> for clang nerds: `export LLVM=1` first
 
 ```bash
-makepkg -si # make sure -Werror has been disabled or else systemback-sli won't be compiled
+makepkg -si
 ```
 
 #### Or

@@ -10,7 +10,7 @@ url='https://github.com/shadichy/systemback-archlinux'
 license=('GPL')
 depends=('util-linux' 'util-linux-libs' 'parted' 'qt5-base>=5.5.0' 'procps-ng' 'gnu-free-fonts' 'dosfstools' 'squashfs-tools' 'libxcrypt-compat')
 optdepends=('btrfs-progs' 'jfsutils' 'reiserfsprogs' 'xfsprogs' 'update-grub')
-makedepends=('ncurses' 'qt5-tools' 'make' 'procps-ng' 'libisoburn')
+makedepends=('ncurses' 'qt5-tools' 'make' 'procps-ng' 'libisoburn' 'gcc')
 # source=()
 # md5sums=('SKIP')
 
