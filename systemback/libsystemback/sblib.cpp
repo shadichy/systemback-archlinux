@@ -4455,7 +4455,7 @@ bool sb::thrdlvprpr(bool iudata)
     //     stype("/run/media/.sblvtmp") == Isdir ? recrmdir("/run/media/.sblvtmp") : rmfile("/run/media/.sblvtmp");
 
     // if (!(crtdir("/run/media/.sblvtmp") && crtdir("/run/media/.sblvtmp/run/media")))
-        return false;
+        // return false;
     ++ThrdLng[0];
     if (ThrdKill)
         return false;

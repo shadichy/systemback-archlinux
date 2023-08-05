@@ -94,6 +94,7 @@ package_systemback() {
     install -m644 lang/*.qm ${pkgdir}/usr/share/${sb}/lang
     install -m644 org.${sb}.sbsustart.policy ${pkgdir}/usr/share/polkit-1/actions/
 
+    install -m644 splash.png ${pkgdir}/usr/share/${sb}
     install -m644 icons/128x128/${sb}.png ${pkgdir}/$icondir/128x128/apps
     install -m644 icons/256x256/${sb}.png ${pkgdir}/$icondir/256x256/apps
     install -m644 icons/48x48/${sb}.png ${pkgdir}/$icondir/48x48/apps

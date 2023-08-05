@@ -7271,8 +7271,10 @@ void systemback::on_newrestorepoint_clicked()
         if(! sb::rename(sb::sdir[1] % "/S0" % QStr::number(a + 1) % '_' % sb::pnames[a], sb::sdir[1] % (a < 8 ? "/S0" : "/S") % QStr::number(a + 2) % '_' % sb::pnames[a])) return err();
 
     if(! sb::rename(sb::sdir[1] % "/.S00_" % dtime, sb::sdir[1] % "/S01_" % dtime)) return err();
+
     sb::crtfile(sb::sdir[1] % "/.sbschedule");
     if(intrrpt) return err();
+
     emptycache();
 
     if(sstart)
@@ -7548,7 +7550,6 @@ void systemback::on_livenew_clicked()
     if(sb::exec("mkinitcpio -S autodetect -A live_hook -k " % kdir % " -g " % sb::sdir[2] % "/.sblivesystemcreate/boot/initramfs-" % kname % ".img"))
         return err(327);
 
-    
     if ((xmntry && !sb::remove("/usr/lib/initcpio/hooks/sbnoxconf")) || !sb::remove("/usr/lib/initcpio/hooks/sbfinstall"))
         return err();
 
@@ -7624,6 +7625,10 @@ void systemback::on_livenew_clicked()
     {
         QStr rpart,
             grxorg,
+            syslinuxconf,
+            grubconf,
+            grublbconf,
+            grubtheme,
             srxorg,
             prmtrs,
             initf(" init=" % sb::execSTDOUT("ps -o cmd --no-headers -p 1"));
@@ -7663,16 +7668,32 @@ void systemback::on_livenew_clicked()
                 }
         }
 
-        if(xmntry)
-            grxorg = "menuentry \"" % tr("Boot Live without xorg.conf file") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live noxconf quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n", srxorg = "label noxconf\n  menu label " % tr("Boot Live without xorg.conf file") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img noxconf quiet splash" % prmtrs % initf % "\n\n";
+        {
+            if (xmntry)
+                grxorg = "menuentry \"" % tr("Boot Live without xorg.conf file") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live noxconf quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n", srxorg = "label noxconf\n  menu label " % tr("Boot Live without xorg.conf file") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img noxconf quiet splash" % prmtrs % initf % "\n\n";
+            syslinuxconf = "default vesamenu.c32\nprompt 0\ntimeout 100\n\nmenu title Systemback Live (" % ifname % ")\nmenu tabmsg " % tr("Press TAB key to edit") % "\nmenu background splash.png\n\nlabel live\n  menu label " % tr("Boot Live system") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img quiet splash" % prmtrs % initf % "\n\nlabel install\n  menu label " % tr("Boot system installer") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img finstall quiet splash" % prmtrs % initf % "\n\nlabel safe\n  menu label " % tr("Boot Live in safe graphics mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n\n" % srxorg % "label debug\n  menu label " % tr("Boot Live in debug mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img" % prmtrs % initf % "\n\nlabel existing\n  menu label " % tr("Boot an existing operating system") % "\n  com32 chain.c32\n  append hd0 0\n\nlabel reboot\n  menu label " % tr("Restart") % "\n  com32 reboot.c32\n\nlabel poweroff\n  menu label " % tr("Shutdown") % "\n  com32 poweroff.c32\n",
+            grubconf = "if loadfont /boot/grub/fonts/unicode.pf2\nthen\n  set gfxmode=auto\n  insmod efi_gop\n  insmod efi_uga\n  insmod gfxterm\n  terminal_output gfxterm\nfi\n\ninsmod gfxmenu\ninsmod png\n\nset theme=/boot/grub/theme.txt\nexport theme\n\nset timeout_style=menu\nset timeout=10\n\nmenuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live " % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Restart") % "\" {\n  reboot\n}\n\nmenuentry \"" % tr("Shutdown") % "\" {\n  halt\n}\n",
+            grublbconf = "menuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n",
+            grubtheme = "title-color: \"white\"\ntitle-text: \"Systemback Live (" % ifname % ")\"\ntitle-font: \"Sans Regular 16\"\ndesktop-color: \"black\"\ndesktop-image: \"splash.png\"\nmessage-color: \"white\"\nmessage-bg-color: \"black\"\nterminal-font: \"Sans Regular 12\"\n\n+ boot_menu {\n  top = 150\n  left = 15%\n  width = 75%\n  height = " % (xmntry ? "150" : "130") % "\n  item_font = \"Sans Regular 12\"\n  item_color = \"grey\"\n  selected_item_color = \"white\"\n  item_height = 20\n  item_padding = 15\n  item_spacing = 5\n}\n\n+ vbox {\n  top = 100%\n  left = 2%\n  + label {text = \"" % tr("Press 'E' key to edit") % "\" font = \"Sans 10\" color = \"white\" align = \"left\"}\n}\n";
+        }
+        if (hasBootfiles && sb::exec("tar -xaf /usr/share/systemback/efi.bootfiles -C \"" % sb::sdir[2] % "\"/.sblivesystemcreate --no-same-owner --no-same-permissions"))
+            return err();
+        if (hasBootfiles && !sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", syslinuxconf))
+            return err();
+        QStr grubdir = sb::sdir[2] % "/.sblivesystemcreate/boot/grub";
+        if(!sb::isdir(grubdir)) sb::crtdir(grubdir);
+        if(!(
+                sb::copy("/usr/share/systemback/splash.png", grubdir % "/splash.png") &&
+                sb::crtfile(grubdir % "/grub.cfg", grubconf) &&
+                sb::crtfile(grubdir % "/theme.txt", grubtheme) &&
+                sb::crtfile(grubdir % "/loopback.cfg", grublbconf)) || intrrpt) 
+            return err();
         if(
-            (hasBootfiles && sb::exec("tar -xaf /usr/share/systemback/efi.bootfiles -C \"" % sb::sdir[2] % "\"/.sblivesystemcreate --no-same-owner --no-same-permissions")) || !(
-                (hasBootfiles && sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", "default vesamenu.c32\nprompt 0\ntimeout 100\n\nmenu title Systemback Live (" % ifname % ")\nmenu tabmsg " % tr("Press TAB key to edit") % "\nmenu background splash.png\n\nlabel live\n  menu label " % tr("Boot Live system") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img quiet splash" % prmtrs % initf % "\n\nlabel install\n  menu label " % tr("Boot system installer") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img finstall quiet splash" % prmtrs % initf % "\n\nlabel safe\n  menu label " % tr("Boot Live in safe graphics mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n\n" % srxorg % "label debug\n  menu label " % tr("Boot Live in debug mode") % "\n  kernel /boot/vmlinuz-" % kname % "\n  append " % rpart % "boot=live initrd=" % syslinux_ucode % "/boot/initramfs-" % kname % ".img" % prmtrs % initf % "\n\nlabel existing\n  menu label " % tr("Boot an existing operating system") % "\n  com32 chain.c32\n  append hd0 0\n\nlabel reboot\n  menu label " % tr("Restart") % "\n  com32 reboot.c32\n\nlabel poweroff\n  menu label " % tr("Shutdown") % "\n  com32 poweroff.c32\n")) &&
-                sb::copy("/usr/share/systemback/splash.png", sb::sdir[2] % "/.sblivesystemcreate/boot/grub/splash.png") &&
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/grub.cfg", "if loadfont /boot/grub/fonts/unicode.pf2\nthen\n  set gfxmode=auto\n  insmod efi_gop\n  insmod efi_uga\n  insmod gfxterm\n  terminal_output gfxterm\nfi\n\ninsmod gfxmenu\ninsmod png\n\nset theme=/boot/grub/theme.txt\nexport theme\n\nset timeout_style=menu\nset timeout=10\n\nmenuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live " % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Restart") % "\" {\n  reboot\n}\n\nmenuentry \"" % tr("Shutdown") % "\" {\n  halt\n}\n") &&
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/theme.txt", "title-color: \"white\"\ntitle-text: \"Systemback Live (" % ifname % ")\"\ntitle-font: \"Sans Regular 16\"\ndesktop-color: \"black\"\ndesktop-image: \"splash.png\"\nmessage-color: \"white\"\nmessage-bg-color: \"black\"\nterminal-font: \"Sans Regular 12\"\n\n+ boot_menu {\n  top = 150\n  left = 15%\n  width = 75%\n  height = " % (xmntry ? "150" : "130") % "\n  item_font = \"Sans Regular 12\"\n  item_color = \"grey\"\n  selected_item_color = \"white\"\n  item_height = 20\n  item_padding = 15\n  item_spacing = 5\n}\n\n+ vbox {\n  top = 100%\n  left = 2%\n  + label {text = \"" % tr("Press 'E' key to edit") % "\" font = \"Sans 10\" color = \"white\" align = \"left\"}\n}\n") &&
-                sb::crtfile(sb::sdir[2] % "/.sblivesystemcreate/boot/grub/loopback.cfg", "menuentry \"" % tr("Boot Live system") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot system installer") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path finstall quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\nmenuentry \"" % tr("Boot Live in safe graphics mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path xforcevesa nomodeset quiet splash" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n\n" % grxorg % "menuentry \"" % tr("Boot Live in debug mode") % "\" {\n  set gfxpayload=keep\n  linux /boot/vmlinuz-" % kname % " " % rpart % "boot=live iso-scan/filename=$iso_path" % prmtrs % initf % "\n  initrd " % grub_ucode % "/boot/initramfs-" % kname % ".img\n}\n")) ||
-            intrrpt || !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/.systemback") || intrrpt || (sb::isdir(sb::sdir[2] % "/.sblivesystemcreate/userdata") && !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/userdata")) || intrrpt)
+            !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/.systemback") ||
+            intrrpt ||
+            (sb::isdir(sb::sdir[2] % "/.sblivesystemcreate/userdata") &&
+                !sb::remove(sb::sdir[2] % "/.sblivesystemcreate/userdata")) ||
+            intrrpt)
             return err();
     }
 
@@ -7699,7 +7720,6 @@ void systemback::on_livenew_clicked()
 
             if (hasBootfiles && !(sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux/syslinux.cfg", sb::sdir[2] % "/.sblivesystemcreate/syslinux/isolinux.cfg") && sb::rename(sb::sdir[2] % "/.sblivesystemcreate/syslinux", sb::sdir[2] % "/.sblivesystemcreate/isolinux")) || intrrpt ||!sb::copy("/usr/lib/syslinux/bios/isohdpfx.bin", sb::sdir[2] % "/.sblivesystemcreate/isolinux/isohdpfx.bin"))
                 return err();
-
 
             ui->progressbar->setValue(0);
 

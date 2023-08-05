@@ -2,24 +2,28 @@
 
 BASE_CMD="/usr/bin/systemback $@"
 
+unlock() {
+	[ -f /var/lib/pacman/db.lck ] && rm /var/lib/pacman/db.lck
+	[ -f /run/systemback.lock ] && rm /run/systemback.lock
+	[ -f /run/sbscheduler.lock ] && rm /run/sbscheduler.lock
+}
+
 if [ "$(id -u)" != 0 ]; then
-  ENABLE_XHOST_ROOT=yes
-  GRANTED_XHOST_ROOT=no
-  if [ "$ENABLE_XHOST_ROOT" = yes ] && xhost 1>/dev/null 2>&1 && ! xhost | grep -qi 'SI:localuser:root$'; then
-    xhost +SI:localuser:root
-    GRANTED_XHOST_ROOT=yes
-  fi
+	ENABLE_XHOST_ROOT=yes
+	GRANTED_XHOST_ROOT=no
+	if [ "$ENABLE_XHOST_ROOT" = yes ] && xhost 1>/dev/null 2>&1 && ! xhost | grep -qi 'SI:localuser:root$'; then
+		xhost +SI:localuser:root
+		GRANTED_XHOST_ROOT=yes
+	fi
 
-  pkexec --disable-internal-agent '/usr/bin/sbsustart' $@
-  status=$?
+	pkexec --disable-internal-agent '/usr/bin/sbsustart' $@
+	status=$?
 
-  [ "$GRANTED_XHOST_ROOT" = yes ] && xhost -SI:localuser:root
+	[ "$GRANTED_XHOST_ROOT" = yes ] && xhost -SI:localuser:root
 
-  exit $status
+	exit $status
 fi
 
-$BASE_CMD
+trap 'unlock' EXIT
 
-[ -f /var/lib/pacman/db.lck ] && rm /var/lib/pacman/db.lck
-[ -f /run/systemback.lock ] && rm /run/systemback.lock
-[ -f /run/sbscheduler.lock ] && rm /run/sbscheduler.lock
+$BASE_CMD
