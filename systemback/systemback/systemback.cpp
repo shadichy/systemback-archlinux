@@ -7528,10 +7528,6 @@ void systemback::on_livenew_clicked()
             QStr txt[]{"cat << EOF >/new_root/etc/xdg/autostart/sbfinstall", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\n", "Type=Application\nIcon=systemback\nTerminal=false\n", "NoDisplay=true\nEOF\n"};
             return ftxt % txt[0] % ".desktop\n" % txt[1] % "Exec=/usr/lib/systemback/sbsustart finstall gtk+\n" % txt[2] % "NotShowIn=KDE;\n" % txt[3] % txt[0] % "-kde.desktop\n" % txt[1] % "Exec=sh -c \"/usr/lib/systemback/sbsustart finstall\"\n" % txt[2] % "OnlyShowIn=KDE;\n" % txt[3] % "fi\n}\n"; }());
 
-    // PolicyKit
-    if (!sb::crtfile("/.sbsystemcopy/etc/polkit-1/rules.d/00-sblive.rules", "polkit.addRule(function(action, subject) {\nif (action.id == \"org.systemback.sbsustart\") {\nreturn polkit.Result.YES;\n}\n});\n"))
-        return err();
-
     if (!cfmod("/usr/lib/initcpio/hooks/sbfinstall", 0755))
         return err();
 
