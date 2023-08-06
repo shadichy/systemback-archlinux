@@ -7485,7 +7485,7 @@ void systemback::on_livenew_clicked()
 
     sb::crtfile("/usr/lib/initcpio/hooks/sbfinstall", [this]() -> QStr
                 {
-            QStr ftxt("#!/bin/sh\nrun_latehook(){\nif grep finstall /proc/cmdline >/dev/null 2>&1\nthen\nif [ -f /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop ]\nthen rm /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop\nfi\n"),
+            QStr ftxt("#!/bin/sh\nrun_latehook(){\nif ! grep noxconf /proc/cmdline >/dev/null 2>&1\nthen\nsed -i 's/# \\(%wheel ALL=(ALL:ALL) NOPASSWD: ALL\\)/\\1/g' /new_root/etc/sudoers\ncat << EOF >/new_root/etc/polkit-1/rules.d/00-sblive.rules\npolkit.addRule(function(action, subject) {\nreturn polkit.Result.YES;\n});\nEOF\nif [ -f /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop ]\nthen rm /new_root/home/" % guname() % "/.config/autostart/dropbox.desktop\nfi\n"),
                 de(sb::execSTDOUT("echo $DESKTOP_SESSION"));
 
             for(uchar a(0) ; a < 5 ; ++a)
@@ -7528,16 +7528,20 @@ void systemback::on_livenew_clicked()
             QStr txt[]{"cat << EOF >/new_root/etc/xdg/autostart/sbfinstall", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\n", "Type=Application\nIcon=systemback\nTerminal=false\n", "NoDisplay=true\nEOF\n"};
             return ftxt % txt[0] % ".desktop\n" % txt[1] % "Exec=/usr/lib/systemback/sbsustart finstall gtk+\n" % txt[2] % "NotShowIn=KDE;\n" % txt[3] % txt[0] % "-kde.desktop\n" % txt[1] % "Exec=sh -c \"/usr/lib/systemback/sbsustart finstall\"\n" % txt[2] % "OnlyShowIn=KDE;\n" % txt[3] % "fi\n}\n"; }());
 
+    // PolicyKit
+    if (!sb::crtfile("/.sbsystemcopy/etc/polkit-1/rules.d/00-sblive.rules", "polkit.addRule(function(action, subject) {\nif (action.id == \"org.systemback.sbsustart\") {\nreturn polkit.Result.YES;\n}\n});\n"))
+        return err();
+
     if (!cfmod("/usr/lib/initcpio/hooks/sbfinstall", 0755))
         return err();
 
     // if(!sb::copy("/usr/share/applications/systemback.desktop", "/etc/xdg/autostart/systemback.desktop"))
         // return err();
 
-    if(!sb::isdir("/home/" % guname() % "/.config/autostart"))
-        sb::crtdir("/home/" % guname() % "/.config/autostart");
-    if(xmntry)
-        sb::crtfile("/home/" % guname() % "/.config/autostart/installer.desktop", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\nExec=sh -c \"grep finstall /proc/cmdline >/dev/null 2>&1 && /usr/lib/systemback/sbsustart finstall gtk+\"\nType=Application\nIcon=systemback\nTerminal=false\n");
+    // if(!sb::isdir("/home/" % guname() % "/.config/autostart"))
+        // sb::crtdir("/home/" % guname() % "/.config/autostart");
+    // if(xmntry)
+        // sb::crtfile("/home/" % guname() % "/.config/autostart/installer.desktop", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\nExec=sh -c \"grep finstall /proc/cmdline >/dev/null 2>&1 && /usr/lib/systemback/sbsustart finstall gtk+\"\nType=Application\nIcon=systemback\nTerminal=false\n");
 
         QStr kdir(sb::execSTDOUT("uname -r"));
     // {
@@ -7622,8 +7626,8 @@ void systemback::on_livenew_clicked()
         sb::lock(sb::Alpmlock);
         sb::lock(sb::Sblock);
     }
-    if(xmntry && !sb::remove("/home/" % guname() % "/.config/autostart/installer.desktop"))
-        return err();
+    // if(xmntry && !sb::remove("/home/" % guname() % "/.config/autostart/installer.desktop"))
+        // return err();
 
     pset(19, " 3/3"),
     sb::Progress = -1;
