@@ -1,0 +1,12 @@
+#!/bin/sh
+
+run_latehook() {
+  if grep noxconf /proc/cmdline >/dev/null 2>&1; then
+    if [ -s /new_root/etc/X11/xorg.conf ]; then
+      rm /new_root/etc/X11/xorg.conf
+    fi
+    if [ -d /new_root/etc/X11/xorg.conf.d ] && ls /new_root/etc/X11/xorg.conf.d | grep -E ".conf$" >/dev/null 2>&1; then
+      rm /new_root/etc/X11/xorg.conf.d/*.conf 2>/dev/null
+    fi
+  fi
+}

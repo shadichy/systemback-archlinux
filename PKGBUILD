@@ -63,6 +63,8 @@ package_systemback() {
 
     mkdir -p ${pkgdir}/usr/share/${sb}/lang
     mkdir -p ${pkgdir}/usr/share/polkit-1/actions/
+    mkdir -p ${pkgdir}/usr/lib/initcpio/hooks
+    mkdir -p ${pkgdir}/usr/lib/initcpio/install
 
     appdir=usr/share/applications
     mkdir -p ${pkgdir}/$appdir
@@ -78,6 +80,8 @@ package_systemback() {
     install -dm664 ${pkgdir}/etc/${sb}
     install -dm644 ${pkgdir}/usr/share/${sb}/lang
     install -dm755 ${pkgdir}/usr/share/polkit-1/actions/
+    install -dm755 ${pkgdir}/usr/lib/initcpio/hooks
+    install -dm755 ${pkgdir}/usr/lib/initcpio/install
 
     install -dm755 ${pkgdir}/$icondir/128x128/apps
     install -dm755 ${pkgdir}/$icondir/256x256/apps
@@ -93,6 +97,8 @@ package_systemback() {
     install -m660 ${sb}.conf ${pkgdir}/etc/${sb}
     install -m644 lang/*.qm ${pkgdir}/usr/share/${sb}/lang
     install -m644 org.${sb}.sbsustart.policy ${pkgdir}/usr/share/polkit-1/actions/
+    install -m755 pacman/hooks/* ${pkgdir}/usr/lib/initcpio/hooks
+    install -m755 pacman/install/* ${pkgdir}/usr/lib/initcpio/install
 
     install -m644 splash.png ${pkgdir}/usr/share/${sb}
     install -m644 icons/128x128/${sb}.png ${pkgdir}/$icondir/128x128/apps

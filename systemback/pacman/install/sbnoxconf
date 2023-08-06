@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only
+
+build() {
+  add_runscript
+}
+
+help() {
+  cat <<HELPEOF
+Autologin and open Systemback installer
+HELPEOF
+}
