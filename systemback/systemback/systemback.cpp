@@ -7386,8 +7386,9 @@ void systemback::on_livenew_clicked()
     QStr kname(rkernel()),
         grub_ucode,
         syslinux_ucode;
+    bool hasBootfiles(sb::isfile("/usr/share/systemback/efi.bootfiles"));
 
-    if ((sb::exist(sb::sdir[2] % "/.sblivesystemcreate") && !sb::remove(sb::sdir[2] % "/.sblivesystemcreate")) || intrrpt || !(sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/.disk") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/live") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/boot") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/syslinux")))
+    if ((sb::exist(sb::sdir[2] % "/.sblivesystemcreate") && !sb::remove(sb::sdir[2] % "/.sblivesystemcreate")) || intrrpt || !(sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/.disk") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/live") && sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/boot") && (hasBootfiles ? sb::crtdir(sb::sdir[2] % "/.sblivesystemcreate/syslinux") : true)))
         return err();
 
     QStr ifname(ui->livename->text() == "auto" ? "systemback_live_" % QDateTime().currentDateTime().toString("yyyy-MM-dd") : ui->livename->text());
@@ -7554,9 +7555,14 @@ void systemback::on_livenew_clicked()
         return err();
 
     irblck = false;
-    if(! cpdir("/usr/lib/syslinux/bios", sb::sdir[2] % "/.sblivesystemcreate/syslinux")) return err();
-
-    if(! (sb::copy("/usr/share/systemback/splash.png", sb::sdir[2] % "/.sblivesystemcreate/syslinux/splash.png") && sb::lvprpr(ui->userdatainclude->isChecked()))) 
+    if(hasBootfiles)
+    {
+        if(!cpdir("/usr/lib/syslinux/bios", sb::sdir[2] % "/.sblivesystemcreate/syslinux"))
+            return err();
+        if(!(sb::copy("/usr/share/systemback/splash.png", sb::sdir[2] % "/.sblivesystemcreate/syslinux/splash.png")))
+            return err();
+    }
+    if(!sb::lvprpr(ui->userdatainclude->isChecked()))
         return err();
 
     {
@@ -7619,8 +7625,6 @@ void systemback::on_livenew_clicked()
         if(sb::isdir(dir)) sb::remove(dir);
 
     if(intrrpt) return err();
-
-    bool hasBootfiles = sb::isfile("/usr/share/systemback/efi.bootfiles");
 
     {
         QStr rpart,
