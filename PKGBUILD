@@ -77,12 +77,12 @@ package_systemback() {
 
     install -dm664 ${pkgdir}/etc/${sb}
     install -dm644 ${pkgdir}/usr/share/${sb}/lang
-    install -dm644 ${pkgdir}/usr/share/polkit-1/actions/
+    install -dm755 ${pkgdir}/usr/share/polkit-1/actions/
 
-    install -dm644 ${pkgdir}/$icondir/128x128/apps
-    install -dm644 ${pkgdir}/$icondir/256x256/apps
-    install -dm644 ${pkgdir}/$icondir/48x48/apps
-    install -dm644 ${pkgdir}/$icondir/64x64/apps
+    install -dm755 ${pkgdir}/$icondir/128x128/apps
+    install -dm755 ${pkgdir}/$icondir/256x256/apps
+    install -dm755 ${pkgdir}/$icondir/48x48/apps
+    install -dm755 ${pkgdir}/$icondir/64x64/apps
 
     install -dm755 ${pkgdir}/etc/xdg/autostart
     install -dm755 ${pkgdir}/$appdir
