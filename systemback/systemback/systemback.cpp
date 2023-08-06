@@ -7529,8 +7529,8 @@ void systemback::on_livenew_clicked()
     // if(!sb::copy("/usr/share/applications/systemback.desktop", "/etc/xdg/autostart/systemback.desktop"))
         // return err();
 
-    // if(xmntry)
-    //     sb::crtfile("/home/" % guname() % "/.config/autostart/installer.desktop", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\nExec=sh -c \"grep finstall /proc/cmdline >/dev/null 2>&1 && /usr/lib/systemback/sbsustart finstall gtk+\"\nType=Application\nIcon=systemback\nTerminal=false\n");
+    if(xmntry)
+        sb::crtfile("/home/" % guname() % "/.config/autostart/installer.desktop", "[Desktop Entry]\nEncoding=UTF-8\nVersion=1.0\nName=Systemback installer\nExec=sh -c \"grep finstall /proc/cmdline >/dev/null 2>&1 && /usr/lib/systemback/sbsustart finstall gtk+\"\nType=Application\nIcon=systemback\nTerminal=false\n");
 
         QStr kdir(sb::execSTDOUT("uname -r"));
     // {
