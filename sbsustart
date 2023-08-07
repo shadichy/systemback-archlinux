@@ -16,7 +16,11 @@ if [ "$(id -u)" != 0 ]; then
 		GRANTED_XHOST_ROOT=yes
 	fi
 
-	pkexec --disable-internal-agent '/usr/bin/sbsustart' $@
+	pkexec --disable-internal-agent /usr/bin/env \
+		DISPLAY="$DISPLAY" \
+		XDG_SESSION_TYPE="$XDG_SESSION_TYPE" \
+		DESKTOP_SESSION="$DESKTOP_SESSION" \
+		"$0" $@
 	status=$?
 
 	[ "$GRANTED_XHOST_ROOT" = yes ] && xhost -SI:localuser:root
